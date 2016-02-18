@@ -1,4 +1,4 @@
 *.pyc
 app.db
 local_settings.py
-pictures/*
+vktrainer/pictures/*

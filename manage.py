@@ -4,18 +4,18 @@ import os
 
 from flask.ext.script import Manager
 
-import vktrainer
+from vktrainer import db, app
 
-manager = Manager(vktrainer.app)
+manager = Manager(app)
 
 
 @manager.command
-def initdb():
+def syncdb():
     """Create the database tables"""
     from vktrainer.models import *
 
-    print 'Using database %s' % vktrainer.db.engine.url
-    vktrainer.db.create_all()
+    print 'Using database %s' % db.engine.url
+    db.create_all()
     print 'Created tables'
 
 
@@ -24,11 +24,17 @@ def import_photos(folder):
     """Import photos from a folder"""
     from vktrainer.models import Photo
 
+    folder_path = os.path.join('vktrainer', app.config['PICTURES_FOLDER'])
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
     files = [
         os.path.join(folder, f)
         for f in os.listdir(folder)
         if os.path.isfile(os.path.join(folder, f))
     ]
+
+    photos = []
 
     for file in files:
         photo = Photo.create_from_file(file)
@@ -36,7 +42,67 @@ def import_photos(folder):
             print 'Not importing {} since it is already in db'.format(file)
             continue
 
+        photos.append(photo)
         print 'Successfully imported {}'.format(file)
+
+    return photos
+
+
+@manager.command
+def bootstrapdb():
+    """Bootstrap db with sample training set"""
+    from vktrainer import db
+    from vktrainer.models import TrainingSet, TrainingPattern
+
+    syncdb()
+    photos = import_photos('test_pictures')
+
+    # We create the training set
+    training_set = TrainingSet(name='Replicants')
+    db.session.add(training_set)
+    db.session.commit()
+
+    # We add the photos
+    for photo in photos:
+        training_set.photos.append(photo)
+    db.session.commit()
+
+    # We create the patterns
+    left_eye_pattern = TrainingPattern(
+        training_set=training_set,
+        name='Left Eye',
+        instruction='Point the center of the left eye',
+        pattern_ref='point',
+    )
+    db.session.add(left_eye_pattern)
+
+    right_eye_pattern = TrainingPattern(
+        training_set=training_set,
+        name='Right Eye',
+        instruction='Point the center of the right eye',
+        pattern_ref='point',
+    )
+    db.session.add(right_eye_pattern)
+
+    nose_point = TrainingPattern(
+        training_set=training_set,
+        name='Nose',
+        instruction='Point the point of the nose',
+        pattern_ref='point',
+    )
+    db.session.add(nose_point)
+
+    mouth_center = TrainingPattern(
+        training_set=training_set,
+        name='Mouth',
+        instruction='Point the center of the mouth',
+        pattern_ref='point',
+    )
+    db.session.add(mouth_center)
+
+    db.session.commit()
+
+    print 'Successfully bootstrapped db'
 
 
 if __name__ == '__main__':

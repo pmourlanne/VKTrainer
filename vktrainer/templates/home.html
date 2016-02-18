@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<ul>
+    {% for training_set in training_sets %}
+        <li>{{ training_set }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

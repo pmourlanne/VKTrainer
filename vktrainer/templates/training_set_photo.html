@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div>
+    <img src="{{ url_for('show_photo', pk=photo.id) }}">
+</div>
+{% endblock %}

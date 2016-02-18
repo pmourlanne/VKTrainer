@@ -3,11 +3,10 @@
 import os
 from shutil import copyfile
 
-from vktrainer import db
+from flask import url_for
+
+from vktrainer import db, app
 from vktrainer.utils import get_md5
-
-
-PICTURES_FOLDER = 'pictures/'
 
 
 photos = db.Table('training_set_photos',
@@ -33,7 +32,7 @@ class Photo(db.Model):
 
         # We copy the file
         _, filename = os.path.split(file)
-        path = os.path.join(PICTURES_FOLDER, filename)
+        path = os.path.join('vktrainer', app.config['PICTURES_FOLDER'], md5)
         copyfile(file, path)
 
         name, _ = os.path.splitext(filename)
@@ -42,12 +41,22 @@ class Photo(db.Model):
         db.session.commit()
         return photo
 
+    def get_path(self):
+        return os.path.join(app.config['PICTURES_FOLDER'], self.md5)
+
+
 class TrainingSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(64))
     photos = db.dynamic_loader(
         'Photo', secondary=photos, backref=db.backref('training_sets', lazy='dynamic'))
+
+    def __unicode__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return url_for('training_set', training_set_id=self.id)
 
 
 class TrainingPattern(db.Model):
