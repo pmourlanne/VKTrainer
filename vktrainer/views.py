@@ -31,7 +31,12 @@ def training_set_photo(training_set_pk, pk):
     if photo is None:
         abort(404)
 
-    return render_template('training_set_photo.html', photo=photo, training_set=training_set)
+    ctx = {
+        'photo': photo,
+        'training_set': training_set,
+    }
+
+    return render_template('training_set_photo.html', **ctx)
 
 
 @app.route('/photo/<int:pk>')

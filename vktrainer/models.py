@@ -65,7 +65,7 @@ class TrainingPattern(db.Model):
 
     name = db.Column(db.String(64))
     instruction = db.Column(db.Text)
-    training_set = db.relation('TrainingSet')
+    training_set = db.relation('TrainingSet', backref=db.backref('patterns', lazy='dynamic'))
     pattern_ref = db.Column(db.String(64))
 
 
