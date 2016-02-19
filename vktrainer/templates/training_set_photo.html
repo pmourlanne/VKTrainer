@@ -43,7 +43,7 @@
                 <button type="button" class="btn btn-default btn-previous">Back</button>
             </div>
             <div class="col-xs-6">
-                <button type="button" class="btn btn-default btn-skip">Next</button>
+                <button type="button" class="btn btn-default btn-next">Next</button>
             </div>
         </div>
     </div>
@@ -83,20 +83,46 @@
             };
         })(jQuery);
 
+        function get_next_patterns($pattern) {
+            var next_patterns = [];
+
+            $('li.pattern').not($pattern).each(function() {
+                if ($(this).isAfter($pattern)) {
+                    next_patterns.push($(this));
+                }
+            });
+
+            return $(next_patterns);
+        }
+
+        function get_previous_patterns($pattern) {
+            var previous_patterns = [];
+
+            $('li.pattern').not($pattern).each(function() {
+                if ($(this).isBefore($pattern)) {
+                    previous_patterns.push($(this));
+                }
+            });
+
+            return $(previous_patterns);
+        }
+
         function reset_other_patterns($pattern) {
-            $('li.pattern').each(function() {
+            $('li.pattern').not($pattern).each(function() {
                 if ($(this).isBefore($pattern)) {
                     reset_pattern($(this), true);
-                } else if ($(this).isAfter($pattern)) {
+                } else {
                     reset_pattern($(this), false);
                 }
-            })
+            });
         }
 
         function reset_pattern($pattern, done) {
             var name = $pattern.attr('data-pattern-name');
             $pattern.find('.pattern-name').html(name);
             $pattern.find('.pattern-instruction').html('');
+            $pattern.removeClass('current');
+
             if (done) {
                 $pattern.removeClass('faded');
             } else {
@@ -104,7 +130,7 @@
             }
         }
 
-        function display_pattern($pattern) {
+        function activate_pattern($pattern) {
             reset_other_patterns($pattern);
 
             var name = '<b>' + $pattern.attr('data-pattern-name') + '</b>';
@@ -112,11 +138,42 @@
 
             $pattern.find('.pattern-name').html(name);
             $pattern.find('.pattern-instruction').html(instruction);
+
+            $pattern.addClass('current');
+            $pattern.removeClass('faded');
         }
+
+        function get_current_pattern() {
+            return $('li.pattern.current');
+        }
+
+        function activate_next_pattern() {
+            var next_patterns = get_next_patterns(get_current_pattern());
+            if (next_patterns.length === 0) {
+                return;
+            }
+            activate_pattern(next_patterns[0]);
+        }
+
+        function activate_previous_pattern() {
+            var previous_patterns = get_previous_patterns(get_current_pattern());
+            if (previous_patterns.length === 0) {
+                return;
+            }
+            activate_pattern(previous_patterns[previous_patterns.length - 1]);
+        }
+
+        $('.btn-next').click(function() {
+            activate_next_pattern();
+        });
+
+        $('.btn-previous').click(function() {
+            activate_previous_pattern();
+        })
 
         patterns = $('li.pattern');
         var current_pattern = patterns.first();
-        display_pattern(current_pattern);
+        activate_pattern(current_pattern);
     });
 </script>
 {% endblock %}
