@@ -31,9 +31,14 @@ def training_set_photo(training_set_pk, pk):
     if photo is None:
         abort(404)
 
+    previous_photo = training_set.photos.filter(Photo.id < pk).order_by('-id').first()
+    next_photo = training_set.photos.filter(Photo.id > pk).order_by('id').first()
+
     ctx = {
         'photo': photo,
         'training_set': training_set,
+        'previous_photo': previous_photo,
+        'next_photo': next_photo,
     }
 
     return render_template('training_set_photo.html', **ctx)

@@ -13,11 +13,21 @@
 
 <div class="row">
 
-    <div class="col-md-8">
+    <div class="col-md-8 col-xs-12">
         <img class="img-responsive" src="{{ url_for('show_photo', pk=photo.id) }}" alt="{{ photo.name }}">
+        <div class="col-xs-4 mt-20">
+            <a type="button" class="btn btn-primary {% if not previous_photo %}disabled{% endif %}" {% if previous_photo %}href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=previous_photo.id) }}"{% endif %}>
+                Previous photo
+            </a>
+        </div>
+        <div class="col-xs-2 mt-20">
+            <a type="button" class="btn btn-primary {% if not next_photo %}disabled{% endif %}" {% if next_photo %}href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=next_photo.id) }}"{% endif %}>
+                Next photo
+            </a>
+        </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-4 col-xs-12">
         <h3>Features to identify</h3>
         <ul>
             {% for training_pattern in training_set.patterns %}
@@ -27,6 +37,15 @@
             </li>
             {% endfor %}
         </ul>
+
+        <div class="col-xs-12 mt-20">
+            <div class="col-xs-6">
+                <button type="button" class="btn btn-default btn-previous">Back</button>
+            </div>
+            <div class="col-xs-6">
+                <button type="button" class="btn btn-default btn-skip">Next</button>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -38,7 +57,7 @@
 </div>
 
 <div class="row all-photos">
-    {% for other_photo in training_set.photos %}
+    {% for other_photo in training_set.photos.order_by('id') %}
     <div class="col-sm-3 col-xs-6">
         <a href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=other_photo.id) }}">
             <img class="img-responsive portfolio-item" src="{{ url_for('show_photo', pk=other_photo.id) }}" alt="{{ other_photo.name }}">

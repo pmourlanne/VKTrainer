@@ -19,3 +19,7 @@ footer {
 .faded {
     opacity: 0.5;
 }
+
+.mt-20 {
+    margin-top: 20px;
+}
