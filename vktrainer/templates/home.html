@@ -3,7 +3,7 @@
 {% block body %}
 <ul>
     {% for training_set in training_sets %}
-        <li>{{ training_set }}</li>
+        <li><a href="{{ url_for('training_set', pk=training_set.id) }}">{{ training_set }}</a></li>
     {% endfor %}
 </ul>
 {% endblock %}

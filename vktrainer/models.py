@@ -68,6 +68,11 @@ class TrainingPattern(db.Model):
     training_set = db.relation('TrainingSet', backref=db.backref('patterns', lazy='dynamic'))
     pattern_ref = db.Column(db.String(64))
 
+    @property
+    def pattern(self):
+        from .patterns import REF_TO_PATTERN_CLASS
+        return REF_TO_PATTERN_CLASS.get(self.pattern_ref)
+
 
 class TrainingResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)

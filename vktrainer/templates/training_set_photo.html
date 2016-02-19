@@ -20,9 +20,10 @@
     <div class="col-md-4">
         <h3>Features to identify</h3>
         <ul>
-            {% for pattern in training_set.patterns %}
-            <li>
-                {{ pattern.name }}
+            {% for training_pattern in training_set.patterns %}
+            <li class="pattern" data-pattern-reference="{{ training_pattern.pattern.reference }}" data-pattern-name="{{ training_pattern.name }}" data-pattern-instruction="{{ training_pattern.instruction }}">
+                <span class="pattern-name">{{ training_pattern.name }}</span>
+                <span class="pattern-instruction"></span>
             </li>
             {% endfor %}
         </ul>
@@ -52,6 +53,51 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('.all-photos').masonry();
+
+        (function($) {
+            $.fn.isAfter = function(sel){
+                return this.prevAll().filter(sel).length !== 0;
+            };
+
+            $.fn.isBefore= function(sel){
+                return this.nextAll().filter(sel).length !== 0;
+            };
+        })(jQuery);
+
+        function reset_other_patterns($pattern) {
+            $('li.pattern').each(function() {
+                if ($(this).isBefore($pattern)) {
+                    reset_pattern($(this), true);
+                } else if ($(this).isAfter($pattern)) {
+                    reset_pattern($(this), false);
+                }
+            })
+        }
+
+        function reset_pattern($pattern, done) {
+            var name = $pattern.attr('data-pattern-name');
+            $pattern.find('.pattern-name').html(name);
+            $pattern.find('.pattern-instruction').html('');
+            if (done) {
+                $pattern.removeClass('faded');
+            } else {
+                $pattern.addClass('faded');
+            }
+        }
+
+        function display_pattern($pattern) {
+            reset_other_patterns($pattern);
+
+            var name = '<b>' + $pattern.attr('data-pattern-name') + '</b>';
+            var instruction = '<br><i>' + $pattern.attr('data-pattern-instruction') + '</i>';
+
+            $pattern.find('.pattern-name').html(name);
+            $pattern.find('.pattern-instruction').html(instruction);
+        }
+
+        patterns = $('li.pattern');
+        var current_pattern = patterns.first();
+        display_pattern(current_pattern);
     });
 </script>
 {% endblock %}
