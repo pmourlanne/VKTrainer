@@ -228,13 +228,50 @@
             context.closePath();
         }
 
+        function get_result($pattern) {
+            var result = $pattern.data('result');
+            if (!result) {
+                return null;
+            }
+            return {
+                name: $pattern.attr('data-pattern-name'),
+                result: result
+            };
+        }
+
+        function submit_results() {
+            var results = [];
+            var result;
+            $('li.pattern').each(function() {
+                result = get_result($(this));
+                if (result) {
+                    results.push(result);
+                }
+            });
+            results = {
+                training_result: JSON.stringify(results),
+            }
+
+            var url = "{{ url_for('training_set_photo_result', training_set_pk=training_set.id, pk=photo.id) }}";
+
+            $.post(url, results, function(data) {
+                var next_url = data.url;
+                window.location = next_url;
+            });
+        }
+
         $('.btn-next').click(function() {
             activate_next_pattern();
         });
 
         $('.btn-previous').click(function() {
             activate_previous_pattern();
-        })
+        });
+
+        $('.btn-finish').click(function() {
+            console.log('click finish');
+            submit_results();
+        });
 
         $('.canvas-training').click(function(e) {
             var offset = $(this).offset();
@@ -256,8 +293,8 @@
                 var result = {
                     points: [
                         {
-                            x: x,
-                            y: y
+                            x: x / canvas.width,
+                            y: y / canvas.height
                         }
                     ]
                 }

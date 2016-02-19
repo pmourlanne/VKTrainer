@@ -77,6 +77,8 @@ class TrainingPattern(db.Model):
 class TrainingResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     training_set_id = db.Column(db.Integer, db.ForeignKey('training_set.id'))
+    photo_id = db.Column(db.Integer, db.ForeignKey('photo.id'))
 
-    training_set = db.relation('TrainingSet')
+    training_set = db.relation('TrainingSet', backref=db.backref('training_results', lazy='dynamic'))
+    photo = db.relation('Photo')
     result = db.Column(db.Text)  # Result stored in JSON

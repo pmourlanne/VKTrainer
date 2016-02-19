@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, url_for, send_file
+from flask import render_template, redirect, url_for, send_file, request, jsonify
 from werkzeug.exceptions import abort
 
-from vktrainer import app
-from vktrainer.models import TrainingSet, Photo
+from vktrainer import app, db
+from vktrainer.models import TrainingSet, Photo, TrainingResult
 from vktrainer.utils import get_object_or_404
 
 
@@ -48,3 +48,27 @@ def training_set_photo(training_set_pk, pk):
 def show_photo(pk):
     photo = get_object_or_404(Photo, Photo.id == pk)
     return send_file(photo.get_path())
+
+
+@app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>/result', methods=['POST', ])
+def training_set_photo_result(training_set_pk, pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+    photo = training_set.photos.filter_by(id=pk).first()
+
+    if photo is None:
+        abort(404)
+
+    data = request.form
+    result = data['training_result']
+
+    training_result = TrainingResult(photo=photo, training_set=training_set, result=result)
+    db.session.add(training_result)
+    db.session.commit()
+
+    next_photo = training_set.photos.filter(Photo.id > pk).order_by('id').first()
+    if not next_photo:
+        next_photo = training_set.photos.order_by('id').first()
+
+    return jsonify({
+        'url': url_for('training_set_photo', training_set_pk=training_set_pk, pk=next_photo.id),
+    })
