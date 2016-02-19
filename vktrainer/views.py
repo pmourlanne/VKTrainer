@@ -25,7 +25,7 @@ def training_set(pk):
 
 @app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>')
 def training_set_photo(training_set_pk, pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
     photo = training_set.photos.filter_by(id=pk).first()
 
     if photo is None:
