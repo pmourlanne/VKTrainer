@@ -12,9 +12,8 @@
 </div>
 
 <div class="row">
-
     <div class="col-md-8 col-xs-12">
-        <img class="img-responsive" src="{{ url_for('show_photo', pk=photo.id) }}" alt="{{ photo.name }}">
+        <img class="img-responsive img-training" src="{{ url_for('show_photo', pk=photo.id) }}" alt="{{ photo.name }}">
         <div class="col-xs-4 mt-20">
             <a type="button" class="btn btn-primary {% if not previous_photo %}disabled{% endif %}" {% if previous_photo %}href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=previous_photo.id) }}"{% endif %}>
                 Previous photo
@@ -31,12 +30,14 @@
         <h3>Features to identify</h3>
         <ul>
             {% for training_pattern in training_set.patterns %}
-            <li class="pattern" data-pattern-reference="{{ training_pattern.pattern.reference }}" data-pattern-name="{{ training_pattern.name }}" data-pattern-instruction="{{ training_pattern.instruction }}">
+            <li class="pattern {% if loop.first %}current{% endif %}" data-pattern-reference="{{ training_pattern.pattern.reference }}" data-pattern-name="{{ training_pattern.name }}" data-pattern-instruction="{{ training_pattern.instruction }}">
                 <span class="pattern-name">{{ training_pattern.name }}</span>
                 <span class="pattern-instruction"></span>
             </li>
             {% endfor %}
         </ul>
+
+        <span class="done-msg hidden"><strong>Done!</strong></span>
 
         <div class="col-xs-12 mt-20">
             <div class="col-xs-6">
@@ -44,6 +45,7 @@
             </div>
             <div class="col-xs-6">
                 <button type="button" class="btn btn-default btn-next">Next</button>
+                <button type="button" class="btn btn-primary btn-finish hidden">Finish</button>
             </div>
         </div>
     </div>
@@ -65,6 +67,8 @@
     </div>
     {% endfor %}
 </div>
+
+<canvas class="canvas-training hidden"></canvas>
 
 {% endblock %}
 
@@ -148,19 +152,80 @@
         }
 
         function activate_next_pattern() {
-            var next_patterns = get_next_patterns(get_current_pattern());
+            var current_pattern = get_current_pattern();
+
+            var next_patterns = get_next_patterns(current_pattern);
             if (next_patterns.length === 0) {
+                reset_pattern(current_pattern, true);
+                $('.done-msg').removeClass('hidden');
+                $('.btn-next').addClass('hidden');
+                $('.btn-finish').removeClass('hidden');
                 return;
             }
             activate_pattern(next_patterns[0]);
         }
 
         function activate_previous_pattern() {
-            var previous_patterns = get_previous_patterns(get_current_pattern());
-            if (previous_patterns.length === 0) {
-                return;
+            $('.done-msg').addClass('hidden');
+            $('.btn-next').removeClass('hidden');
+            $('.btn-finish').addClass('hidden');
+
+            var current_pattern = get_current_pattern();
+            var previous_pattern;
+
+            // We were done, but we want to go back
+            if (current_pattern.length === 0) {
+                previous_pattern = $('li.pattern').last();
+            } else {
+                var previous_patterns = get_previous_patterns(current_pattern);
+                if (previous_patterns.length === 0) {
+                    previous_pattern = current_pattern;
+                } else {
+                    previous_pattern = previous_patterns[previous_patterns.length - 1];
+                }
             }
-            activate_pattern(previous_patterns[previous_patterns.length - 1]);
+
+            activate_pattern(previous_pattern);
+
+            // We restore the canvas stored in the previous state
+            var state = previous_pattern.data('previous_state');
+            if (state) {
+                draw_canvas_from_state($('.canvas-training')[0], state);
+            }
+        }
+
+        function position_canvas() {
+            var img = $('.img-training');
+            var $canvas = $('.canvas-training');
+            var canvas = $canvas[0];
+
+            $canvas.css('position', 'absolute');
+            $canvas.css('left', img.offset().left + 'px');
+            $canvas.css('top', img.offset().top + 'px');
+            canvas.width = img.width();
+            canvas.height = img.height();
+            $canvas.removeClass('hidden');
+        }
+
+        function draw_canvas_from_state(canvas, state) {
+            var picture = new Image();
+            picture.src = state;
+            picture.onload = function () {
+                var context = canvas.getContext('2d');
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(picture, 0, 0);
+            };
+        }
+
+        function draw_point(canvas, x, y) {
+            var radius = 5;
+            var context = canvas.getContext("2d");
+
+            context.beginPath();
+            context.arc(x, y, radius, 0, 2 * Math.PI, false);
+            context.fillStyle = '#00FF00';
+            context.fill();
+            context.closePath();
         }
 
         $('.btn-next').click(function() {
@@ -171,9 +236,40 @@
             activate_previous_pattern();
         })
 
-        patterns = $('li.pattern');
-        var current_pattern = patterns.first();
-        activate_pattern(current_pattern);
+        $('.canvas-training').click(function(e) {
+            var offset = $(this).offset();
+            var top = offset.top;
+            var left = offset.left;
+
+            var x = e.clientX - left;
+            var y = e.clientY - top;
+
+            var canvas = $(this)[0];
+            var current_pattern = get_current_pattern();
+
+            // We store the previous state to be able to restore it later on
+            previous_state = canvas.toDataURL();
+            current_pattern.data('previous_state', previous_state);
+
+            if (current_pattern.attr('data-pattern-reference') == 'point') {
+                draw_point(canvas, x, y);
+                var result = {
+                    points: [
+                        {
+                            x: x,
+                            y: y
+                        }
+                    ]
+                }
+                current_pattern.data('result', result);
+            }
+
+            activate_next_pattern();
+        });
+
+        activate_pattern(get_current_pattern());
+        position_canvas();
+
     });
 </script>
 {% endblock %}
