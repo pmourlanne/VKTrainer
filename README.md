@@ -11,4 +11,6 @@ This web application allows you to create training sets for feature detection on
 
 ## Demo usage
   - Bootstrap the db with test pictures: `python manage.py bootstrapdb`
-  - More to come soon...
+  - Run the server `python manage.py runserver`
+  - Go to the home (`localhost:5000` by default) and do some training on the `Replicants` training set
+  - Extract the results from the training set whenever you want
