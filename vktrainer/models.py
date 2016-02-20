@@ -117,4 +117,5 @@ class TrainingResult(db.Model):
                 'id': self.photo.id,
             },
             'result': result,
+            'id': self.id,
         }
