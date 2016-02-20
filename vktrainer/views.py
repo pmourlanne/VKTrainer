@@ -46,6 +46,26 @@ def training_set_photo(training_set_pk, pk):
     return render_template('training_set_photo.html', **ctx)
 
 
+@app.route('/trainingresult/<int:pk>')
+def training_result(pk):
+    training_result = get_object_or_404(TrainingResult, TrainingResult.id == pk)
+    training_set = training_result.training_set
+    photo = training_result.photo
+
+    previous_result = training_set.training_results.filter(TrainingResult.id < pk).order_by('-id').first()
+    next_result = training_set.training_results.filter(TrainingResult.id > pk).order_by('id').first()
+
+    ctx = {
+        'training_result': training_result,
+        'training_set': training_set,
+        'photo': photo,
+        'previous_result': previous_result,
+        'next_result': next_result,
+    }
+
+    return render_template('training_result.html', **ctx)
+
+
 @app.route('/photo/<int:pk>')
 def show_photo(pk):
     photo = get_object_or_404(Photo, Photo.id == pk)
