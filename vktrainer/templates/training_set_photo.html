@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 
+{% block navbar_right %}
+
+<li>
+    <a href="{{ training_set.get_results_url() }}">Get results</a>
+</li>
+
+{% endblock %}
+
 {% block body %}
 
 <div class="row">

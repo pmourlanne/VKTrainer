@@ -23,3 +23,7 @@ footer {
 .mt-20 {
     margin-top: 20px;
 }
+
+ul.training-sets {
+    list-style-type: none;
+}

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from flask import render_template, redirect, url_for, send_file, request, jsonify
 from werkzeug.exceptions import abort
 
@@ -72,3 +74,9 @@ def training_set_photo_result(training_set_pk, pk):
     return jsonify({
         'url': url_for('training_set_photo', training_set_pk=training_set_pk, pk=next_photo.id),
     })
+
+@app.route('/trainingset/<int:pk>/results')
+def training_set_extract_results(pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+    results = training_set.get_results()
+    return jsonify({'results': json.dumps(results)})

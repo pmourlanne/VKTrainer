@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import os
 from shutil import copyfile
 
@@ -56,7 +57,16 @@ class TrainingSet(db.Model):
         return self.name
 
     def get_absolute_url(self):
-        return url_for('training_set', training_set_id=self.id)
+        return url_for('training_set', pk=self.id)
+
+    def get_edit_url(self):
+        return '#'
+
+    def get_results_url(self):
+        return url_for('training_set_extract_results', pk=self.id)
+
+    def get_results(self):
+        return [tr.get_pretty_result() for tr in self.training_results.all()]
 
 
 class TrainingPattern(db.Model):
@@ -82,3 +92,29 @@ class TrainingResult(db.Model):
     training_set = db.relation('TrainingSet', backref=db.backref('training_results', lazy='dynamic'))
     photo = db.relation('Photo')
     result = db.Column(db.Text)  # Result stored in JSON
+
+    def get_pretty_result(self):
+        try:
+            loaded_result = json.loads(self.result)
+        except ValueError:
+            # Could not decode JSON
+            loaded_result = None
+
+        if loaded_result:
+            result = {
+                'state': 'OK',
+                'value': loaded_result,
+            }
+        else:
+            result = {
+                'state': 'KO',
+                'value': {},
+            }
+
+        return {
+            'photo': {
+                'name': self.photo.name,
+                'id': self.photo.id,
+            },
+            'result': result,
+        }

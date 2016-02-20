@@ -1,9 +1,38 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<ul>
-    {% for training_set in training_sets %}
-        <li><a href="{{ url_for('training_set', pk=training_set.id) }}">{{ training_set }}</a></li>
-    {% endfor %}
-</ul>
+
+<div class="row">
+    <h1>Welcome to the <a href="https://www.youtube.com/watch?v=Umc9ezAyJv0" target="_blank">Voight-Kampff</a> trainer</h1>
+    <img src="{{ url_for('static', filename='img/vk_interview.jpeg') }}" class="img-responsive">
+</div>
+
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>Training sets</h2>
+        <ul class='training-sets'>
+        {% for training_set in training_sets %}
+            <li>
+                <div class='col-xs-10'>
+                {{ training_set }}
+                <div class="pull-right">
+                <a href="{{ training_set.get_absolute_url() }}" class="btn btn-primary">Training</a>
+                <a href="{{ training_set.get_edit_url() }}" class="btn btn-default">Edit</a>
+                <a href="{{ training_set.get_results_url() }}" class="btn btn-default">Results</a>
+                </div>
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div class="col-md-4">
+        <h2>Create training set</h2>
+        Start by <a href="#">uploading pictures</a><br/>
+        And then <a href="#">configure your training set</a>
+    </div>
+
+</div>
+
 {% endblock %}
