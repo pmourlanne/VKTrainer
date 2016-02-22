@@ -202,6 +202,12 @@
             }
         }
 
+        function store_canvas_state($pattern) {
+            var canvas = $('.canvas-training')[0];
+            previous_state = canvas.toDataURL();
+            $pattern.data('previous_state', previous_state);
+        }
+
         function get_result($pattern) {
             var result = $pattern.data('result');
             if (!result) {
@@ -235,6 +241,7 @@
         }
 
         $('.btn-next').click(function() {
+            store_canvas_state(get_current_pattern());
             activate_next_pattern();
         });
 
@@ -243,7 +250,6 @@
         });
 
         $('.btn-finish').click(function() {
-            console.log('click finish');
             submit_results();
         });
 
@@ -259,8 +265,7 @@
             var current_pattern = get_current_pattern();
 
             // We store the previous state to be able to restore it later on
-            previous_state = canvas.toDataURL();
-            current_pattern.data('previous_state', previous_state);
+            store_canvas_state(current_pattern);
 
             if (current_pattern.attr('data-pattern-reference') == 'point') {
                 draw_point(canvas, x, y);
