@@ -34,7 +34,14 @@ def training_set_photo(training_set_pk, pk):
         abort(404)
 
     previous_photo = training_set.photos.filter(Photo.id < pk).order_by('-id').first()
+    if not previous_photo:
+        # We are already at the first photo, we show the last one
+        previous_photo = training_set.photos.order_by('-id').first()
+
     next_photo = training_set.photos.filter(Photo.id > pk).order_by('id').first()
+    if not next_photo:
+        # We are already at the last photo, we show the first one
+        next_photo = training_set.photos.order_by('id').first()
 
     ctx = {
         'photo': photo,

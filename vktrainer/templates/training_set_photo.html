@@ -23,14 +23,15 @@
     <div class="col-md-8 col-xs-12">
         <img class="img-responsive img-training" src="{{ url_for('show_photo', pk=photo.id) }}" alt="{{ photo.name }}">
         <div class="col-xs-4 mt-20">
-            <a type="button" class="btn btn-primary {% if not previous_photo %}disabled{% endif %}" {% if previous_photo %}href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=previous_photo.id) }}"{% endif %}>
+            <a type="button" class="btn btn-default" href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=previous_photo.id) }}">
                 Previous photo
             </a>
         </div>
         <div class="col-xs-2 mt-20">
-            <a type="button" class="btn btn-primary {% if not next_photo %}disabled{% endif %}" {% if next_photo %}href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=next_photo.id) }}"{% endif %}>
-                Next photo
+            <a type="button" class="btn btn-default btn-next-photo" href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=next_photo.id) }}">
+                Skip to next photo
             </a>
+            <button type="button" class="btn btn-primary btn-finish hidden">Confirm</button>
         </div>
     </div>
 
@@ -52,8 +53,7 @@
                 <button type="button" class="btn btn-default btn-previous">Back</button>
             </div>
             <div class="col-xs-6">
-                <button type="button" class="btn btn-default btn-next">Next</button>
-                <button type="button" class="btn btn-primary btn-finish hidden">Finish</button>
+                <button type="button" class="btn btn-default btn-next">Skip step</button>
             </div>
         </div>
     </div>
@@ -166,7 +166,7 @@
             if (next_patterns.length === 0) {
                 reset_pattern(current_pattern, true);
                 $('.done-msg').removeClass('hidden');
-                $('.btn-next').addClass('hidden');
+                $('.btn-next-photo').addClass('hidden');
                 $('.btn-finish').removeClass('hidden');
                 return;
             }
@@ -175,7 +175,7 @@
 
         function activate_previous_pattern() {
             $('.done-msg').addClass('hidden');
-            $('.btn-next').removeClass('hidden');
+            $('.btn-next-photo').removeClass('hidden');
             $('.btn-finish').addClass('hidden');
 
             var current_pattern = get_current_pattern();
