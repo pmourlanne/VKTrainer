@@ -60,7 +60,7 @@ class TrainingSet(db.Model):
         return url_for('training_set', pk=self.id)
 
     def get_edit_url(self):
-        return '#'
+        return url_for('training_set_edit', pk=self.id)
 
     def get_results_url(self):
         return url_for('training_set_extract_results', pk=self.id)

@@ -6,6 +6,7 @@ from flask import render_template, redirect, url_for, send_file, request, jsonif
 from werkzeug.exceptions import abort
 
 from vktrainer import app, db
+from vktrainer.forms import CreateTrainingSetForm
 from vktrainer.models import TrainingSet, Photo, TrainingResult
 from vktrainer.utils import get_object_or_404
 
@@ -14,6 +15,26 @@ from vktrainer.utils import get_object_or_404
 def home():
     training_sets = TrainingSet.query.order_by(TrainingSet.name).all()
     return render_template('home.html', training_sets=training_sets)
+
+
+@app.route('/trainingset/create', methods=['GET', 'POST', ])
+def training_set_create():
+    form = CreateTrainingSetForm()
+
+    if form.validate_on_submit():
+        # Actually create the training set
+        training_set = TrainingSet(name=form.name.data)
+        db.session.add(training_set)
+        db.session.commit()
+        return redirect(training_set.get_edit_url())
+
+    return render_template('training_set_create.html', form=form)
+
+
+@app.route('/trainingset/<int:pk>/edit')
+def training_set_edit(pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+    return render_template('training_set_edit.html', training_set=training_set)
 
 
 @app.route('/trainingset/<int:pk>')

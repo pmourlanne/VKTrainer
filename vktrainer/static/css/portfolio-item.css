@@ -27,3 +27,7 @@ footer {
 ul.training-sets {
     list-style-type: none;
 }
+
+ul.training-sets > li > div {
+    margin-bottom: 10px;
+}
