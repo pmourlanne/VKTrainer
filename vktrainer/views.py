@@ -73,6 +73,23 @@ def training_result(pk):
     return render_template('training_result.html', **ctx)
 
 
+@app.route('/trainingresult/<int:pk>', methods=['POST', ])
+def training_result_delete(pk):
+    training_result = get_object_or_404(TrainingResult, TrainingResult.id == pk)
+    training_set = training_result.training_set
+
+    next_result = training_set.training_results.filter(TrainingResult.id > pk).order_by('id').first()
+    if not next_result:
+        next_result = training_set.training_results.filter(TrainingResult.id < pk).order_by('-id').first()
+
+    success_url = next_result.get_absolute_url() if next_result else training_set.get_absolute_url()
+
+    db.session.delete(training_result)
+    db.session.commit()
+
+    return jsonify({'url': success_url})
+
+
 @app.route('/photo/<int:pk>')
 def show_photo(pk):
     photo = get_object_or_404(Photo, Photo.id == pk)
@@ -101,6 +118,7 @@ def training_set_photo_post_result(training_set_pk, pk):
     return jsonify({
         'url': url_for('training_set_photo', training_set_pk=training_set_pk, pk=next_photo.id),
     })
+
 
 @app.route('/trainingset/<int:pk>/results')
 def training_set_extract_results(pk):

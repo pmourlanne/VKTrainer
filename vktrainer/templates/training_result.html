@@ -78,6 +78,15 @@
                 draw_point(canvas, x, y);
             })
         });
+
+        $('.btn-delete').click(function() {
+            console.log('click');
+            var url = '{{ url_for("training_result_delete", pk=training_result.id) }}';
+            $.post(url, function(data) {
+                var next_url = data.url;
+                window.location = next_url;
+            });
+        });
     });
 </script>
 {% endblock %}
