@@ -226,7 +226,7 @@
                 training_result: JSON.stringify(results),
             }
 
-            var url = "{{ url_for('training_set_photo_result', training_set_pk=training_set.id, pk=photo.id) }}";
+            var url = "{{ url_for('training_set_photo_post_result', training_set_pk=training_set.id, pk=photo.id) }}";
 
             $.post(url, results, function(data) {
                 var next_url = data.url;

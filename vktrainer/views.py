@@ -19,7 +19,7 @@ def home():
 @app.route('/trainingset/<int:pk>')
 def training_set(pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
-    first_photo = training_set.photos.first()
+    first_photo = training_set.photos.order_by('id').first()
     if not first_photo:
         return render_template('empty_training_set.html')
     return redirect(url_for('training_set_photo', training_set_pk=pk, pk=first_photo.id))
@@ -80,7 +80,7 @@ def show_photo(pk):
 
 
 @app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>/result', methods=['POST', ])
-def training_set_photo_result(training_set_pk, pk):
+def training_set_photo_post_result(training_set_pk, pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
     photo = training_set.photos.filter_by(id=pk).first()
 
