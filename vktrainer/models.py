@@ -77,6 +77,7 @@ class TrainingPattern(db.Model):
     instruction = db.Column(db.Text)
     training_set = db.relation('TrainingSet', backref=db.backref('patterns', lazy='dynamic'))
     pattern_ref = db.Column(db.String(64))
+    position = db.Column(db.Integer)
 
     @property
     def pattern(self):

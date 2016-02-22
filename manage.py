@@ -73,6 +73,7 @@ def bootstrapdb():
         name='Left Eye',
         instruction='Point the center of the left eye',
         pattern_ref='point',
+        position=1,
     )
     db.session.add(left_eye_pattern)
 
@@ -81,6 +82,7 @@ def bootstrapdb():
         name='Right Eye',
         instruction='Point the center of the right eye',
         pattern_ref='point',
+        position=2,
     )
     db.session.add(right_eye_pattern)
 
@@ -89,6 +91,7 @@ def bootstrapdb():
         name='Nose',
         instruction='Point the point of the nose',
         pattern_ref='point',
+        position=3,
     )
     db.session.add(nose_point)
 
@@ -97,6 +100,7 @@ def bootstrapdb():
         name='Mouth',
         instruction='Point the center of the mouth',
         pattern_ref='point',
+        position=4,
     )
     db.session.add(mouth_center)
 

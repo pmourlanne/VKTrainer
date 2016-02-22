@@ -38,7 +38,7 @@
     <div class="col-md-4 col-xs-12">
         <h3>Features to identify</h3>
         <ul>
-            {% for training_pattern in training_set.patterns %}
+            {% for training_pattern in training_set.patterns.order_by('position') %}
             <li class="pattern {% if loop.first %}current{% endif %}" data-pattern-reference="{{ training_pattern.pattern.reference }}" data-pattern-name="{{ training_pattern.name }}" data-pattern-instruction="{{ training_pattern.instruction }}">
                 <span class="pattern-name">{{ training_pattern.name }}</span>
                 <span class="pattern-instruction"></span>
