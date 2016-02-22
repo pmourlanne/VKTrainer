@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+
+{{ super() }}
+<link href="{{ url_for('static', filename='css/dropzone.css') }}" rel="stylesheet">
+
+{% endblock %}
+
+{% block body %}
+
+<div class="row">
+    <h1>Edit {{ training_set.name }}</h1>
+</div>
+
+<div class="row mt-20">
+    <div class='col-md-4 col-xs-6'>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class='col-xs-2 control-label'>Name</label>
+                <div class='col-xs-10'>
+                    <input type="text" class="form-control" value="{{ training_set.name }}" readonly="readonly">
+                </div>
+            </div>
+        </form>
+
+        Patterns
+    </div>
+
+    <div class="col-md-8 col-xs-6">
+        <div class="row all-photos">
+            {% for photo in training_set.photos.order_by('id') %}
+            <div class="col-md-3 col-sm-4 col-xs-6">
+                <img class="img-responsive portfolio-item" src="{{ url_for('show_photo', pk=photo.id) }}" alt="{{ photo.name }}">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+        <form action="{{ url_for('training_set_add_photo', pk=training_set.id) }}" class="dropzone" id='add-photos'>
+          <div class="fallback">
+            <input name="file" type="file" multiple />
+          </div>
+        </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block end_body_js %}
+<script src="{{ url_for('static', filename='js/dropzone.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.all-photos').masonry();
+    })
+</script>
+{% endblock %}

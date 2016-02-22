@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import json
+import os
 
-from flask import render_template, redirect, url_for, send_file, request, jsonify
+from flask import render_template, redirect, url_for, send_file, request, jsonify, make_response
+from werkzeug import secure_filename
 from werkzeug.exceptions import abort
 
 from vktrainer import app, db
@@ -35,6 +37,25 @@ def training_set_create():
 def training_set_edit(pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
     return render_template('training_set_edit.html', training_set=training_set)
+
+
+@app.route('/trainingset/<int:pk>/add_photo', methods=['POST', ])
+def training_set_add_photo(pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+
+    file = request.files['file']
+    filename = secure_filename(file.filename)
+    tmp_path = os.path.join(app.config['TMP_PICTURES_FOLDER'], filename)
+    file.save(tmp_path)
+
+    photo = Photo.create_from_file(tmp_path, check_if_exists=False)
+
+    if photo is None:
+        return make_response(jsonify({'error': 'Picture already exists'}), 400)
+
+    training_set.photos.append(photo)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
 
 
 @app.route('/trainingset/<int:pk>')

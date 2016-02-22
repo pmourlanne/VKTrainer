@@ -24,12 +24,13 @@ class Photo(db.Model):
     md5 = db.Column(db.String(64))
 
     @classmethod
-    def create_from_file(cls, file):
+    def create_from_file(cls, file, check_if_exists=True):
         # We check no photo with the same md5 already exists in db
         md5 = get_md5(file)
-        photo = cls.query.filter_by(md5=md5).first()
-        if photo is not None:
-            return None
+        if check_if_exists:
+            photo = cls.query.filter_by(md5=md5).first()
+            if photo is not None:
+                return None
 
         # We copy the file
         _, filename = os.path.split(file)

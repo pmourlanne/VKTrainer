@@ -8,5 +8,6 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'migrations')
 
 PICTURES_FOLDER = 'pictures/'
+TMP_PICTURES_FOLDER = '/tmp/'
 
 from local_settings import *

@@ -31,3 +31,7 @@ ul.training-sets {
 ul.training-sets > li > div {
     margin-bottom: 10px;
 }
+
+form.dropzone {
+    margin-bottom: 50px;
+}
