@@ -138,6 +138,14 @@ def show_photo(pk):
     return send_file(photo.get_path())
 
 
+@app.route('/photo/<int:pk>/delete', methods=['POST', ])
+def delete_photo(pk):
+    photo = get_object_or_404(Photo, Photo.id == pk)
+    db.session.delete(photo)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+
 @app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>/result', methods=['POST', ])
 def training_set_photo_post_result(training_set_pk, pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
