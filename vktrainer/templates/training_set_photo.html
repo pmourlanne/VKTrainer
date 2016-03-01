@@ -150,56 +150,84 @@
             }
         }
 
-        function add_pattern_select($pattern) {
-            // We add the select
-            var choices = $pattern.attr('data-pattern-choices');
-            choices = choices.split(';');
-            var html = '<select class="select-pattern">';
-            html += '<option value="" selected="selected"></option>'
-            for (var i = 0; i < choices.length; i ++) {
-                html += '<option value="' + choices[i] + '">' + choices[i] + '</option>';
-            }
-            html += '</select>';
-            var $select = $(html);
-            $select.insertAfter($pattern);
-
-            // Go to next pattern on select change
-            $select.change(function() {
-                store_canvas_state($pattern);
-                var value = $select.val();
-                var result = {
-                    value: value
-                }
-                $pattern.data('result', result);
-                activate_next_pattern();
+        function disable_pattern_inputs() {
+            $('.select-pattern-container').each(function() {
+                $(this).find('select').prop('disabled', true);
+            });
+            $('.input-pattern-container').each(function() {
+                $(this).find('input').prop('disabled', true);
+                $(this).find('button').addClass('disabled');
             });
         }
 
-        function add_pattern_input($pattern) {
-            // We add the input
-            var input = $pattern.attr('data-pattern-input');
-            var type = 'text';
-            if (input === 'number_input') {
-                type = 'number';
-            }
-            var html = '<div class="input-pattern-container">';
-            html += '<input type="' + type + '"/>'
-            html += '<button class="btn btn-xs btn-primary btn-confirm" type="button">Confirm</button>';
-            html += '</div>';
-
-            var $input_div = $(html);
-            $input_div.insertAfter($pattern);
-
-            // Go to next step on button click
-            $('.btn-confirm').click(function() {
-                store_canvas_state($pattern);
-                var value = $input_div.find('input').val();
-                var result = {
-                    value: value
+        function add_pattern_select($pattern) {
+            // If the select does not exist already, we add it
+            if ($pattern.find('.select-pattern-container').length === 0) {
+                var choices = $pattern.attr('data-pattern-choices');
+                choices = choices.split(';');
+                var html = '<div class="select-pattern-container">';
+                html += '<select>';
+                html += '<option value="" selected="selected"></option>'
+                for (var i = 0; i < choices.length; i ++) {
+                    html += '<option value="' + choices[i] + '">' + choices[i] + '</option>';
                 }
-                $pattern.data('result', result);
-                activate_next_pattern();
-            });
+                html += '</select>';
+                html += '</div>';
+                var $select_div = $(html);
+                $pattern.append($select_div)
+
+                // Go to next pattern on select change
+                $select_div.find('select').change(function() {
+                    store_canvas_state($pattern);
+                    var value = $(this).val();
+                    var result = {
+                        value: value
+                    }
+                    $pattern.data('result', result);
+                    activate_next_pattern();
+                });
+
+            }
+            // Otherwise we just activate the select
+            else {
+                $pattern.find('select').prop('disabled', false);
+            }
+        }
+
+        function add_pattern_input($pattern) {
+            // If the input does not exist already, we add it
+            if ($pattern.find('.input-pattern-container').length === 0) {
+                var input = $pattern.attr('data-pattern-input');
+                var type = 'text';
+                if (input === 'number_input') {
+                    type = 'number';
+                }
+                var html = '<div class="input-pattern-container">';
+                html += '<input type="' + type + '"/>'
+                html += '<button class="btn btn-xs btn-primary btn-confirm" type="button">Confirm</button>';
+                html += '</div>';
+
+                var $input_div = $(html);
+                $pattern.append($input_div);
+
+                // Go to next step on button click
+                $('.btn-confirm').click(function() {
+                    if ($(this).hasClass('disabled')) {
+                        return;
+                    }
+
+                    store_canvas_state($pattern);
+                    var value = $input_div.find('input').val();
+                    var result = {
+                        value: value
+                    }
+                    $pattern.data('result', result);
+                    activate_next_pattern();
+                });
+            }
+            // Otherwise we just activate the input
+            $pattern.find('input').prop('disabled', false);
+            $pattern.find('button').removeClass('disabled');
         }
 
         function activate_pattern($pattern) {
@@ -230,8 +258,7 @@
         function activate_next_pattern() {
             var current_pattern = get_current_pattern();
 
-            $('.select-pattern').remove();
-            $('.input-pattern-container').remove();
+            disable_pattern_inputs();
 
             var next_patterns = get_next_patterns(current_pattern);
             if (next_patterns.length === 0) {
@@ -249,8 +276,7 @@
             $('.btn-next-photo').removeClass('hidden');
             $('.btn-finish').addClass('hidden');
 
-            $('.select-pattern').remove();
-            $('.input-pattern-container').remove();
+            disable_pattern_inputs();
 
             var current_pattern = get_current_pattern();
             var previous_pattern;
