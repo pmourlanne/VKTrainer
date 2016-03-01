@@ -68,15 +68,26 @@
         var points, x, y;
         result.forEach(function(result) {
             // We add the pattern
-            $('.features').append('<li>' + result.name + '</li>');
+            var $li = $('<li>' + result.name + '</li>');
+            $('.features').append($li);
 
-            // We draw each point
-            points = result.result.points;
-            points.forEach(function(point) {
-                x = point.x * width;
-                y = point.y * height;
-                draw_point(canvas, x, y);
-            })
+            // If the pattern is a drawing, we draw the points
+            if (result.result.points) {
+                // We draw each point
+                points = result.result.points;
+                points.forEach(function(point) {
+                    x = point.x * width;
+                    y = point.y * height;
+                    draw_point(canvas, x, y);
+                })
+            }
+            // If the pattern is a value, we add a disabled input
+            else if (result.result.value) {
+                var html = $li.html();
+                html += ': <input type="text" disabled="disabled" value="' + result.result.value + '">';
+                $li.html(html);
+            }
+
         });
 
         $('.btn-delete').click(function() {
