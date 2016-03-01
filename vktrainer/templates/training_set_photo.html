@@ -155,6 +155,7 @@
             var choices = $pattern.attr('data-pattern-choices');
             choices = choices.split(';');
             var html = '<select class="select-pattern">';
+            html += '<option value="" selected="selected"></option>'
             for (var i = 0; i < choices.length; i ++) {
                 html += '<option value="' + choices[i] + '">' + choices[i] + '</option>';
             }
@@ -167,7 +168,34 @@
                 store_canvas_state($pattern);
                 var value = $select.val();
                 var result = {
-                    'value': value,
+                    value: value
+                }
+                $pattern.data('result', result);
+                activate_next_pattern();
+            });
+        }
+
+        function add_pattern_input($pattern) {
+            // We add the input
+            var input = $pattern.attr('data-pattern-input');
+            var type = 'text';
+            if (input === 'number_input') {
+                type = 'number';
+            }
+            var html = '<div class="input-pattern-container">';
+            html += '<input type="' + type + '"/>'
+            html += '<button class="btn btn-xs btn-primary btn-confirm" type="button">Confirm</button>';
+            html += '</div>';
+
+            var $input_div = $(html);
+            $input_div.insertAfter($pattern);
+
+            // Go to next step on button click
+            $('.btn-confirm').click(function() {
+                store_canvas_state($pattern);
+                var value = $input_div.find('input').val();
+                var result = {
+                    value: value
                 }
                 $pattern.data('result', result);
                 activate_next_pattern();
@@ -190,6 +218,9 @@
             if (input === 'select') {
                 add_pattern_select($pattern);
             }
+            else if (input === 'number_input') {
+                add_pattern_input($pattern);
+            }
         }
 
         function get_current_pattern() {
@@ -200,6 +231,7 @@
             var current_pattern = get_current_pattern();
 
             $('.select-pattern').remove();
+            $('.input-pattern-container').remove();
 
             var next_patterns = get_next_patterns(current_pattern);
             if (next_patterns.length === 0) {
@@ -218,6 +250,7 @@
             $('.btn-finish').addClass('hidden');
 
             $('.select-pattern').remove();
+            $('.input-pattern-container').remove();
 
             var current_pattern = get_current_pattern();
             var previous_pattern;

@@ -113,6 +113,15 @@ def bootstrapdb():
     )
     db.session.add(mood)
 
+    age = TrainingPattern(
+        training_set=training_set,
+        name='Age',
+        instruction='Enter the age of the person',
+        pattern_ref='number',
+        position=5,
+    )
+    db.session.add(age)
+
     db.session.commit()
 
     print 'Successfully bootstrapped db'
