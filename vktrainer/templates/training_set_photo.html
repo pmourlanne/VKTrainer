@@ -154,7 +154,7 @@
             // We add the select
             var choices = $pattern.attr('data-pattern-choices');
             choices = choices.split(';');
-            var html = '<select>';
+            var html = '<select class="select-pattern">';
             for (var i = 0; i < choices.length; i ++) {
                 html += '<option value="' + choices[i] + '">' + choices[i] + '</option>';
             }
@@ -170,13 +170,7 @@
                     'value': value,
                 }
                 $pattern.data('result', result);
-                $select.remove();
                 activate_next_pattern();
-            });
-
-            // Hide select on next step
-            $('.btn-next').click(function() {
-                $select.remove();
             });
         }
 
@@ -205,6 +199,8 @@
         function activate_next_pattern() {
             var current_pattern = get_current_pattern();
 
+            $('.select-pattern').remove();
+
             var next_patterns = get_next_patterns(current_pattern);
             if (next_patterns.length === 0) {
                 reset_pattern(current_pattern, true);
@@ -220,6 +216,8 @@
             $('.done-msg').addClass('hidden');
             $('.btn-next-photo').removeClass('hidden');
             $('.btn-finish').addClass('hidden');
+
+            $('.select-pattern').remove();
 
             var current_pattern = get_current_pattern();
             var previous_pattern;
@@ -282,6 +280,20 @@
                 window.location = next_url;
             });
         }
+
+        $(document).keydown(function(e) {
+            // Up arrow
+            if (e.keyCode === 38) {
+                activate_previous_pattern();
+                e.preventDefault();
+            }
+            // Down arrow
+            else if (e.keyCode === 40) {
+                store_canvas_state(get_current_pattern());
+                activate_next_pattern();
+                e.preventDefault();
+            }
+        });
 
         $('.btn-next').click(function() {
             store_canvas_state(get_current_pattern());
