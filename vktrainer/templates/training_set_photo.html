@@ -39,7 +39,15 @@
         <h3>Features to identify</h3>
         <ul>
             {% for training_pattern in training_set.patterns.order_by('position') %}
-            <li class="pattern {% if loop.first %}current{% endif %}" data-pattern-reference="{{ training_pattern.pattern.reference }}" data-pattern-name="{{ training_pattern.name }}" data-pattern-instruction="{{ training_pattern.instruction }}">
+            <li
+                class="pattern {% if loop.first %}current{% endif %}"
+                data-pattern-input="{{ training_pattern.pattern.input }}"
+                data-pattern-name="{{ training_pattern.name }}"
+                data-pattern-instruction="{{ training_pattern.instruction }}"
+                {% if training_pattern.pattern.choices %}
+                data-pattern-choices="{{ training_pattern.pattern.get_flattened_choices() }}"
+                {% endif %}
+            >
                 <span class="pattern-name">{{ training_pattern.name }}</span>
                 <span class="pattern-instruction"></span>
             </li>
@@ -142,6 +150,36 @@
             }
         }
 
+        function add_pattern_select($pattern) {
+            // We add the select
+            var choices = $pattern.attr('data-pattern-choices');
+            choices = choices.split(';');
+            var html = '<select>';
+            for (var i = 0; i < choices.length; i ++) {
+                html += '<option value="' + choices[i] + '">' + choices[i] + '</option>';
+            }
+            html += '</select>';
+            var $select = $(html);
+            $select.insertAfter($pattern);
+
+            // Go to next pattern on select change
+            $select.change(function() {
+                store_canvas_state($pattern);
+                var value = $select.val();
+                var result = {
+                    'value': value,
+                }
+                $pattern.data('result', result);
+                $select.remove();
+                activate_next_pattern();
+            });
+
+            // Hide select on next step
+            $('.btn-next').click(function() {
+                $select.remove();
+            });
+        }
+
         function activate_pattern($pattern) {
             reset_other_patterns($pattern);
 
@@ -153,6 +191,11 @@
 
             $pattern.addClass('current');
             $pattern.removeClass('faded');
+
+            var input = $pattern.attr('data-pattern-input');
+            if (input === 'select') {
+                add_pattern_select($pattern);
+            }
         }
 
         function get_current_pattern() {
@@ -254,6 +297,13 @@
         });
 
         $('.canvas-training').click(function(e) {
+            var current_pattern = get_current_pattern();
+            var input = current_pattern.attr('data-pattern-input');
+            if (input.indexOf('draw_') !== 0) {
+                // The current pattern is not a drawing one, we dismiss click events
+                return;
+            }
+
             var offset = $(this).offset();
             var top = offset.top;
             var left = offset.left;
@@ -262,12 +312,11 @@
             var y = e.clientY - top;
 
             var canvas = $(this)[0];
-            var current_pattern = get_current_pattern();
 
             // We store the previous state to be able to restore it later on
             store_canvas_state(current_pattern);
 
-            if (current_pattern.attr('data-pattern-reference') == 'point') {
+            if (input === 'draw_point') {
                 draw_point(canvas, x, y);
                 var result = {
                     points: [

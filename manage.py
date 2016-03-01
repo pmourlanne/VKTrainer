@@ -104,6 +104,15 @@ def bootstrapdb():
     )
     db.session.add(mouth_center)
 
+    mood = TrainingPattern(
+        training_set=training_set,
+        name='Mood',
+        instruction='Choose the mood that most fits the face',
+        pattern_ref='mood',
+        position=5,
+    )
+    db.session.add(mood)
+
     db.session.commit()
 
     print 'Successfully bootstrapped db'
