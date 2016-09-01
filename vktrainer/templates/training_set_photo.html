@@ -163,6 +163,39 @@
         }
 
         function add_pattern_select($pattern) {
+            function bind_keydown_select_handler($pattern) {
+                var keydown_select_handler = function(e) {
+                    var choices = $pattern.attr('data-pattern-choices');
+                    choices = choices.split(';');
+                    var $select_div = $pattern.find('select').parent();
+
+                    var max_choice = choices.length;
+                    if (max_choice > 9) {
+                        max_choice = 9;
+                    }
+
+                    var keycode;
+                    var numpad_keycode;
+                    for (var i = 0; i < max_choice; i++) {
+                        // The number 1 on the keyboard has the keycode 49
+                        keycode = 49 + i;
+                        // The number 1 on the pad has the keycode 97
+                        numpad_keycode = 97 + i;
+
+                        if (e.keyCode === keycode || e.keyCode === numpad_keycode) {
+                            $select_div.find('select').val(choices[i]).trigger('change');
+                        }
+                    }
+                }
+                $(document).keydown(keydown_select_handler);
+                $pattern.data('keydown_select_handler', keydown_select_handler);
+            }
+
+            function unbind_keydown_select_handler($pattern) {
+                var handler = $pattern.data('keydown_select_handler');
+                $(document).off('keydown', handler);
+            }
+
             // If the select does not exist already, we add it
             if ($pattern.find('.select-pattern-container').length === 0) {
                 var choices = $pattern.attr('data-pattern-choices');
@@ -178,8 +211,11 @@
                 var $select_div = $(html);
                 $pattern.append($select_div)
 
+                bind_keydown_select_handler($pattern);
+
                 // Go to next pattern on select change
                 $select_div.find('select').change(function() {
+                    unbind_keydown_select_handler($pattern);
                     store_canvas_state($pattern);
                     var value = $(this).val();
                     var result = {
@@ -193,6 +229,7 @@
             // Otherwise we just activate the select
             else {
                 $pattern.find('select').prop('disabled', false);
+                bind_keydown_select_handler($pattern);
             }
         }
 
