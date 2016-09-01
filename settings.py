@@ -10,4 +10,7 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'migrations')
 PICTURES_FOLDER = 'pictures/'
 TMP_PICTURES_FOLDER = '/tmp/'
 
+# Possible values : 'linear' and 'semi-random'
+SHOW_PICTURES_ORDERING = 'linear'
+
 from local_settings import *

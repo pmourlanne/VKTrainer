@@ -2,6 +2,7 @@
 
 import json
 import os
+import random
 from shutil import copyfile
 
 from flask import url_for
@@ -46,7 +47,6 @@ class Photo(db.Model):
     def get_path(self):
         return os.path.join(app.config['PICTURES_FOLDER'], self.md5)
 
-
 class TrainingSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -68,6 +68,65 @@ class TrainingSet(db.Model):
 
     def get_results(self):
         return [tr.get_pretty_result() for tr in self.training_results.all()]
+
+    def get_first_photo(self):
+        if app.config['SHOW_PICTURES_ORDERING'] == 'linear':
+            return self.photos.order_by('id').first()
+        else:
+            return self._get_next_photo_semi_random(None)
+
+    def get_next_photo(self, photo):
+        if app.config['SHOW_PICTURES_ORDERING'] == 'linear':
+            return self._get_next_photo_linear(photo)
+        else:
+            return self._get_next_photo_semi_random(photo)
+
+    def get_previous_photo(self, photo):
+        if app.config['SHOW_PICTURES_ORDERING'] == 'linear':
+            return self._get_previous_photo_linear(photo)
+        else:
+            return self._get_previous_photo_semi_random(photo)
+
+    def _get_next_photo_linear(self, photo):
+        next_photo = self.photos.filter(Photo.id > photo.id).order_by('id').first()
+        if not next_photo:
+            # We are already at the last photo, we show the first one
+            next_photo = self.photos.order_by('id').first()
+
+        return next_photo
+
+    def _get_previous_photo_linear(self, photo):
+        previous_photo = self.photos.filter(Photo.id < photo.id).order_by('-id').first()
+        if not previous_photo:
+            # We are already at the first photo, we show the last one
+            previous_photo = self.photos.order_by('-id').first()
+
+        return previous_photo
+
+    def _get_next_photo_semi_random(self, photo):
+        """
+        We serve a random photo without any results
+        If there aren't any, we serve a random photo
+        """
+
+        photos_without_results = self.photos.filter(~Photo.id.in_(
+            self.training_results.with_entities(TrainingResult.photo_id)
+        ))
+        if photo:
+            photos_without_results = photos_without_results.filter(Photo.id != photo.id)
+
+        nb_photos_without_results = photos_without_results.count()
+        if nb_photos_without_results:
+            return photos_without_results.all()[random.randint(0, nb_photos_without_results - 1)]
+        else:
+            nb_photos = self.photos.count()
+            random_nb = random.randint(0, nb_photos - 1)
+            return self.photos.all()[random_nb]
+
+    def _get_previous_photo_semi_random(self, photo):
+        # Don't want to allow previous photo in semi random mode (breaks UX)
+        return None
+
 
 
 class TrainingPattern(db.Model):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import os
 
 from flask import render_template, redirect, url_for, send_file, request, jsonify, make_response
@@ -61,9 +60,11 @@ def training_set_add_photo(pk):
 @app.route('/trainingset/<int:pk>')
 def training_set(pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
-    first_photo = training_set.photos.order_by('id').first()
+    first_photo = training_set.get_first_photo()
+
     if not first_photo:
         return render_template('empty_training_set.html')
+
     return redirect(url_for('training_set_photo', training_set_pk=pk, pk=first_photo.id))
 
 
@@ -75,15 +76,8 @@ def training_set_photo(training_set_pk, pk):
     if photo is None:
         abort(404)
 
-    previous_photo = training_set.photos.filter(Photo.id < pk).order_by('-id').first()
-    if not previous_photo:
-        # We are already at the first photo, we show the last one
-        previous_photo = training_set.photos.order_by('-id').first()
-
-    next_photo = training_set.photos.filter(Photo.id > pk).order_by('id').first()
-    if not next_photo:
-        # We are already at the last photo, we show the first one
-        next_photo = training_set.photos.order_by('id').first()
+    previous_photo = training_set.get_previous_photo(photo)
+    next_photo = training_set.get_next_photo(photo)
 
     ctx = {
         'photo': photo,
@@ -174,4 +168,4 @@ def training_set_photo_post_result(training_set_pk, pk):
 def training_set_extract_results(pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
     results = training_set.get_results()
-    return jsonify({'results': json.dumps(results)})
+    return jsonify({'results': results})

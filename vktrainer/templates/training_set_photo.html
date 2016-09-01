@@ -23,9 +23,11 @@
     <div class="col-md-8 col-xs-12">
         <img class="img-responsive img-training" src="{{ url_for('show_photo', pk=photo.id) }}" alt="{{ photo.name }}">
         <div class="col-xs-4 mt-20">
+            {% if previous_photo %}
             <a type="button" class="btn btn-default" href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=previous_photo.id) }}">
                 Previous photo
             </a>
+            {% endif %}
         </div>
         <div class="col-xs-2 mt-20">
             <a type="button" class="btn btn-default btn-next-photo" href="{{ url_for('training_set_photo', training_set_pk=training_set.id, pk=next_photo.id) }}">
