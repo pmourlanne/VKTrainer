@@ -13,4 +13,9 @@ TMP_PICTURES_FOLDER = '/tmp/'
 # Possible values : 'linear' and 'semi-random'
 SHOW_PICTURES_ORDERING = 'linear'
 
-from local_settings import *
+SECRET_KEY = 'ThisIsAPlaceholderReplaceMe'
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
