@@ -155,9 +155,7 @@ def training_set_photo_post_result(training_set_pk, pk):
     db.session.add(training_result)
     db.session.commit()
 
-    next_photo = training_set.photos.filter(Photo.id > pk).order_by('id').first()
-    if not next_photo:
-        next_photo = training_set.photos.order_by('id').first()
+    next_photo = training_set.get_next_photo(photo)
 
     return jsonify({
         'url': url_for('training_set_photo', training_set_pk=training_set_pk, pk=next_photo.id),
