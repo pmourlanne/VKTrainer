@@ -1,0 +1,5 @@
+# Bootstrap db with simple patterns
+python manage.py bootstrapdb
+
+# Runserver
+python manage.py runserver
