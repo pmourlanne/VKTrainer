@@ -58,29 +58,26 @@ def bootstrapdb():
     photos = import_photos('test_pictures')
 
     # We create the training sets
-    gender_training_set = TrainingSet(name='Replicants (gender)')
-    age_training_set = TrainingSet(name='Replicants (age)')
+    training_set = TrainingSet(name='Replicants')
 
-    db.session.add(gender_training_set)
-    db.session.add(age_training_set)
+    db.session.add(training_set)
     db.session.commit()
 
     # We add the photos
     for photo in photos:
-        gender_training_set.photos.append(photo)
-        age_training_set.photos.append(photo)
+        training_set.photos.append(photo)
     db.session.commit()
 
     # We create the patterns
     gender = TrainingPattern(
-        training_set=gender_training_set,
+        training_set=training_set,
         name='Gender',
         instruction='Choose the gender that most fits the face',
         pattern_ref='gender',
         position=1,
     )
     age = TrainingPattern(
-        training_set=age_training_set,
+        training_set=training_set,
         name='Age',
         instruction='Enter the age of the person',
         pattern_ref='number',
