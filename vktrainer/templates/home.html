@@ -18,26 +18,17 @@
                 {{ training_set }}
                 <div class="pull-right">
                 <a href="{{ training_set.get_absolute_url() }}" class="btn btn-primary">Training</a>
-                <a href="{{ training_set.get_edit_url() }}" class="btn btn-default">Edit</a>
                 <a href="{{ training_set.get_results_url() }}" class="btn btn-default">Results</a>
                 </div>
                 </div>
             </li>
         {% endfor %}
-        <li>
-            <div class='col-xs-10'>
-                <div class="pull-right">
-                    <a href="{{ url_for('training_set_create') }}" class="btn btn-primary">Create</a>
-                </div>
-            </div>
-        </li>
         </ul>
     </div>
 
     <div class="col-md-4">
         <h2>Create training set</h2>
-        Start by <a href="#">uploading pictures</a><br/>
-        And then <a href="#">configure your training set</a>
+        Soon (TM)
     </div>
 
 </div>
