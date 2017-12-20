@@ -5,10 +5,6 @@ class SelectPattern(object):
     input = 'select'
     choices = []
 
-    @classmethod
-    def get_flattened_choices(cls):
-        return ';'.join(cls.choices)
-
 
 class GenderPattern(SelectPattern):
     reference = 'gender'

@@ -36,6 +36,24 @@ def training_set_photo(training_set_pk):
     return render_template('training_set_photo.html', **ctx)
 
 
+@app.route('/trainingset/<int:training_set_pk>/patterns/')
+def training_set_patterns(training_set_pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+
+    patterns = []
+    for pattern in training_set.patterns.order_by('position'):
+        patterns.append({
+            'name': pattern.name,
+            'instruction': pattern.instruction,
+            'input': pattern.pattern.input,
+            'choices': getattr(pattern.pattern, 'choices', []),
+        })
+
+    return jsonify({
+        'patterns': patterns,
+    })
+
+
 @app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>')
 def training_set_get_photo(training_set_pk, pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)

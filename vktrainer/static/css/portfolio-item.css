@@ -9,19 +9,3 @@ body {
 footer {
     margin: 50px 0;
 }
-
-.faded {
-    opacity: 0.5;
-}
-
-.mt-20 {
-    margin-top: 20px;
-}
-
-ul.training-sets {
-    list-style-type: none;
-}
-
-ul.training-sets > li > div {
-    margin-bottom: 10px;
-}

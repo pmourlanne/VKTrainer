@@ -1,0 +1,37 @@
+.mt-20 {
+    margin-top: 20px;
+}
+
+ul.training-sets {
+    list-style-type: none;
+}
+
+ul.training-sets > li > div {
+    margin-bottom: 10px;
+}
+
+.pattern-choice {
+    float: left;
+    height: 100px;
+    padding: 10px;
+    font-size: 10px;
+    text-align: center;
+    background-color: #f9f9f9;
+    border: 1px solid #fff;
+}
+
+.pattern-choice:hover {
+    color: #fff;
+    background-color: #337ab7;
+}
+
+.pattern-choice > span.index {
+    font-size: 24px;
+}
+
+.pattern-choice > span.choice {
+    display: block;
+    text-align: center;
+    word-wrap: break-word;
+    margin-top: 10px;
+}
