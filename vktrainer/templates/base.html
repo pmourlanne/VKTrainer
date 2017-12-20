@@ -40,7 +40,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container" id="body_container">
         {% block body %}{% endblock %}
 
         {#
@@ -58,9 +58,10 @@
 
     <script src="{{ url_for('static', filename='vendor/jquery/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/vue/vue.min.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='vendor/vue/vue.min.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='vendor/vue/vue.js') }}"></script>
 
-    <script src="{{ url_for('static', filename='js/canvas_drawing.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 
     {% block end_body_js %}{% endblock %}
 

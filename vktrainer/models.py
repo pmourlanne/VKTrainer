@@ -47,6 +47,9 @@ class Photo(db.Model):
     def get_path(self):
         return os.path.join(app.config['PICTURES_FOLDER'], self.md5)
 
+    def get_absolute_url(self):
+        return url_for('show_photo', pk=self.id)
+
 
 class TrainingSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -25,25 +25,51 @@ def training_set(pk):
     return redirect(url_for('training_set_photo', training_set_pk=pk, pk=first_photo.id))
 
 
+@app.route('/trainingset/<int:training_set_pk>/photo/')
+def training_set_photo(training_set_pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+
+    ctx = {
+        'training_set': training_set,
+    }
+
+    return render_template('training_set_photo.html', **ctx)
+
+
 @app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>')
-def training_set_photo(training_set_pk, pk):
+def training_set_get_photo(training_set_pk, pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
     photo = training_set.photos.filter_by(id=pk).first()
 
     if photo is None:
         abort(404)
 
-    previous_photo = training_set.get_previous_photo(photo)
-    next_photo = training_set.get_next_photo(photo)
+    return jsonify({
+        'pk': photo.id,
+        'url': photo.get_absolute_url(),
+        'name': photo.name,
+    })
 
-    ctx = {
-        'photo': photo,
-        'training_set': training_set,
-        'previous_photo': previous_photo,
-        'next_photo': next_photo,
-    }
 
-    return render_template('training_set_photo.html', **ctx)
+@app.route('/trainingset/<int:training_set_pk>/photo/next/')
+def training_set_next_photo(training_set_pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+
+    current_photo = None
+    current_photo_pk = request.args.get('photo')
+    if current_photo_pk:
+        current_photo = training_set.photos.filter_by(id=current_photo_pk).first()
+
+    if current_photo:
+        photo = training_set.get_next_photo(current_photo)
+    else:
+        photo = training_set.get_first_photo()
+
+    return jsonify({
+        'pk': photo.id,
+        'url': photo.get_absolute_url(),
+        'name': photo.name,
+    })
 
 
 @app.route('/trainingresult/<int:pk>')
