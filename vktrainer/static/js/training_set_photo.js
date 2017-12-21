@@ -163,7 +163,6 @@ new Vue({
 
                     // If the active pattern is not a select, we ignore the key press
                     var pattern = self.$data.patterns[self.$data.active_index];
-                    console.log(pattern.input);
                     if (pattern.input !== 'select') {
                         return;
                     }
