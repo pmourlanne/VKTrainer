@@ -39,19 +39,13 @@
                 <span v-show="pattern.active"><br/><i>[[ pattern.instruction ]]</i></span>
 
                 <template v-if="pattern.input === 'number_input'">
-                    <div class="input-container" v-show="pattern.active">
-                        <input type="number" v-model="pattern.result" v-on:keyup.enter.stop="enableNextPattern">
+                    <div v-show="pattern.active">
+                        <input type="number" v-model="pattern.result" v-on:keyup.enter.stop="enableNextPattern" :ref="pattern.name + '_input'" id="input">
                         <button class="btn btn-xs btn-primary btn-confirm" type="button" v-on:click="enableNextPattern">Confirm</button>
                     </div>
                 </template>
 
                 <template v-else-if="pattern.input === 'select'">
-                    <div class="input-container hidden">
-                        <select>
-                            <option value="" selected="selected"></option>
-                            <option v-for="choice in pattern.choices" :value="choice">[[ choice ]]</option>
-                        </select>
-                    </div>
                     <div class="row" v-show="pattern.active">
                         <div class="col-xs-3 pattern-choice" v-for="(choice, index) in pattern.choices" v-on:click="setActivePatternResult(choice)">
                             <span class="index">[[ index + 1 ]]</span>

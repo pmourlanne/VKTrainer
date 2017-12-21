@@ -15,9 +15,17 @@ new Vue({
             this.$data.patterns[this.$data.active_index].active = false;
         },
         _enablePattern: function(index) {
-            this.$data.patterns[index].active = true;
-            this.$data.patterns[index].result = '';
+            var pattern = this.$data.patterns[index];
+
+            pattern.active = true;
+            pattern.result = '';
             this.$data.active_index = index;
+
+            // Give focus to the input if there is one
+            var input = this.$refs[pattern.name + '_input'];
+            if (input) {
+                this.$nextTick(() => input[0].focus())
+            }
         },
         enableNextPattern: function() {
             var active_index = this.$data.active_index;
@@ -147,10 +155,15 @@ new Vue({
             var self = this;
 
             window.addEventListener('keyup', function(e) {
-                // Submit on enter when training done
+                // Handle enter press
                 if (e.keyCode === 13) {
+                    // If we're done, submit the result
                     if (self.$data.training_done) {
                         self.submitResult();
+                    }
+                    // Otherwise we skip to the next pattern
+                    else {
+                        self.enableNextPattern();
                     }
                 }
 
