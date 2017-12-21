@@ -25,7 +25,7 @@
 
         <div class="col-xs-2 mt-20">
             <a type="button" class="btn btn-default" v-on:click="fetchNextPhoto">Skip to next photo</a>
-            <button type="button" class="btn btn-primary btn-finish hidden">Confirm</button>
+            <button type="button" class="btn btn-primary hidden">Confirm</button>
         </div>
 
     </div>
@@ -35,12 +35,13 @@
         <ul>
             <li v-for="pattern in patterns">
                 <span :class="pattern.active ? '':'text-muted'">[[ pattern.name ]]</span>
+                <span v-show="!pattern.active"><i>[[ pattern.result ]]</i></span>
                 <span v-show="pattern.active"><br/><i>[[ pattern.instruction ]]</i></span>
 
                 <template v-if="pattern.input === 'number_input'">
                     <div class="input-container" v-show="pattern.active">
-                        <input type="number">
-                        <button class="btn btn-xs btn-primary btn-confirm" type="button">Confirm</button>
+                        <input type="number" v-model="pattern.result" v-on:keyup.enter="enableNextPattern">
+                        <button class="btn btn-xs btn-primary btn-confirm" type="button" v-on:click="enableNextPattern">Confirm</button>
                     </div>
                 </template>
 
@@ -52,7 +53,7 @@
                         </select>
                     </div>
                     <div class="row" v-show="pattern.active">
-                        <div class="col-xs-3 pattern-choice" v-for="(choice, index) in pattern.choices">
+                        <div class="col-xs-3 pattern-choice" v-for="(choice, index) in pattern.choices" v-on:click="setActivePatternResult(choice)">
                             <span class="index">[[ index + 1 ]]</span>
                             <span class="choice">[[ choice ]]</span>
                         </div>
@@ -68,7 +69,8 @@
                 <button type="button" class="btn btn-default" v-show="active_index > 0" v-on:click="enablePreviousPattern">Back</button>
             </div>
             <div class="col-xs-6">
-                <button type="button" class="btn btn-default" v-show="training_done === false" v-on:click="enableNextPattern">Skip step</button>
+                <button type="button" class="btn btn-default" v-show="!training_done" v-on:click="enableNextPattern">Skip step</button>
+                <button type="button" class="btn btn-primary" v-show="training_done" v-on:click="submitResult">Next</button>
             </div>
         </div>
     </div>

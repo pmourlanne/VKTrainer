@@ -35,7 +35,9 @@ new Vue({
             // We were done, we enable the last pattern
             if (this.$data.training_done) {
                 this.$data.training_done = false;
-                this._enablePattern(this.$data.patterns.length - 1);
+                var idx = this.$data.patterns.length - 1;
+                this._enablePattern(idx);
+                this.$data.patterns[idx].result = '';
                 return;
             }
 
@@ -44,8 +46,38 @@ new Vue({
             if (active_index === 0) {
                 return;
             }
+
+            // We're done with edge cases :o
             this._disableActivePattern();
+            this.$data.patterns[active_index].result = '';
             this._enablePattern(active_index - 1);
+        },
+        setActivePatternResult: function(choice) {
+            this.$data.patterns[this.$data.active_index].result = choice;
+            this.enableNextPattern();
+        },
+        submitResult: function() {
+            var data, i, pattern;
+            var training_result = {};
+
+            for (i = 0; i < this.$data.patterns.length; i++) {
+                pattern = this.$data.patterns[i];
+                training_result[pattern.name] = pattern.result;
+            }
+            data = {
+                'training_result': JSON.stringify(training_result),
+                'photo': this.$data.photo_pk
+            };
+
+            var url = window.location.pathname;
+            url = url.substring(0, url.indexOf('/photo/'));
+            url += '/result/';
+
+            var self = this;
+            $.post(url, data, function(data) {
+                self.resetPatterns();
+                self.fetchNextPhoto();
+            });
         },
 
         // Patterns fetch and load
@@ -56,11 +88,21 @@ new Vue({
 
             var self = this;
             $.get(url, function(data) {
-                if (data.patterns.length) {
-                    data.patterns[0].active = true;
-                }
                 self.$data.patterns = data.patterns;
+                self._enablePattern(0);
             });
+        },
+        resetPatterns: function() {
+            var pattern, i;
+            // Clean the patterns (result and active)
+            for (i = 0; i < this.$data.patterns.length; i++) {
+                pattern = this.$data.patterns[i];
+                pattern.result = '';
+                pattern.active = false;
+            }
+            this.$data.training_done = false;
+            // Enable the first pattern
+            this._enablePattern(0);
         },
 
         // Photo fetch and load
@@ -102,7 +144,9 @@ new Vue({
         }
     },
     mounted: function() {
+        // Fetch data
         this.fetchPhotoFromHash();
         this.fetchPatterns();
+        // Add global keybindings
     }
 });

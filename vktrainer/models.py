@@ -180,8 +180,4 @@ class TrainingResult(db.Model):
             },
             'result': result,
             'id': self.id,
-            'url': self.get_absolute_url(),
         }
-
-    def get_absolute_url(self):
-        return url_for('training_result', pk=self.id)

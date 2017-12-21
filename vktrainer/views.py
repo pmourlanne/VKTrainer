@@ -96,26 +96,25 @@ def show_photo(pk):
     return send_file(photo.get_path())
 
 
-@app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>/result', methods=['POST', ])
-def training_set_photo_post_result(training_set_pk, pk):
+@app.route('/trainingset/<int:training_set_pk>/result/', methods=['POST', ])
+def training_set_photo_post_result(training_set_pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
-    photo = training_set.photos.filter_by(id=pk).first()
-
-    if photo is None:
-        abort(404)
 
     data = request.form
-    result = data['training_result']
+    photo_pk = data.get('photo')
+    result = data.get('training_result')
+
+    if not photo_pk:
+        abort(404)
+    photo = training_set.photos.filter_by(id=photo_pk).first()
+    if photo is None:
+        abort(404)
 
     training_result = TrainingResult(photo=photo, training_set=training_set, result=result)
     db.session.add(training_result)
     db.session.commit()
 
-    next_photo = training_set.get_next_photo(photo)
-
-    return jsonify({
-        'url': url_for('training_set_photo', training_set_pk=training_set_pk, pk=next_photo.id),
-    })
+    return jsonify({})
 
 
 @app.route('/trainingset/<int:pk>/results')
