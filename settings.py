@@ -15,6 +15,7 @@ SHOW_PICTURES_ORDERING = 'linear'
 
 SECRET_KEY = 'ThisIsAPlaceholderReplaceMe'
 
+
 try:
     from local_settings import *
 except ImportError:

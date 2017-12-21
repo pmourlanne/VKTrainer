@@ -6,8 +6,9 @@ import random
 from shutil import copyfile
 
 from flask import url_for
+from flask_login import UserMixin
 
-from vktrainer import db, app
+from vktrainer import db, app, login_manager
 from vktrainer.utils import get_md5
 
 
@@ -15,6 +16,20 @@ photos = db.Table('training_set_photos',
     db.Column('training_set_id', db.Integer, db.ForeignKey('training_set.id')),
     db.Column('photo_id', db.Integer, db.ForeignKey('photo.id'))
 )
+
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(64))
+
+    def __repr__(self):
+        return self.name
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return User.query.filter(User.id == userid).first()
 
 
 class Photo(db.Model):
@@ -150,9 +165,11 @@ class TrainingResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     training_set_id = db.Column(db.Integer, db.ForeignKey('training_set.id'))
     photo_id = db.Column(db.Integer, db.ForeignKey('photo.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     training_set = db.relation('TrainingSet', backref=db.backref('training_results', lazy='dynamic'))
     photo = db.relation('Photo')
+    user = db.relation('User')
     result = db.Column(db.Text)  # Result stored in JSON
 
     def get_pretty_result(self):
@@ -178,6 +195,7 @@ class TrainingResult(db.Model):
                 'name': self.photo.name,
                 'id': self.photo.id,
             },
+            'user': self.user.name if self.user else None,
             'result': result,
             'id': self.id,
         }
