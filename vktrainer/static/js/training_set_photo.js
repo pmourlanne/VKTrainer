@@ -16,6 +16,7 @@ new Vue({
         },
         _enablePattern: function(index) {
             this.$data.patterns[index].active = true;
+            this.$data.patterns[index].result = '';
             this.$data.active_index = index;
         },
         enableNextPattern: function() {
@@ -35,9 +36,7 @@ new Vue({
             // We were done, we enable the last pattern
             if (this.$data.training_done) {
                 this.$data.training_done = false;
-                var idx = this.$data.patterns.length - 1;
-                this._enablePattern(idx);
-                this.$data.patterns[idx].result = '';
+                this._enablePattern(this.$data.patterns.length - 1);
                 return;
             }
 
@@ -119,7 +118,7 @@ new Vue({
                 self.loadPhoto(data);
             });
         },
-        loadPhoto(data) {
+        loadPhoto: function(data) {
             // Load the photo
             this.$data.photo_pk = data.pk;
             this.$data.photo_url = data.url;
@@ -128,7 +127,7 @@ new Vue({
             // Update the url
             window.location.hash = '#/' + this.$data.photo_pk;
         },
-        fetchPhotoFromHash() {
+        fetchPhotoFromHash: function() {
             // We try to get the photo pk from the hash
             var regex = /#\/(\d)/g;
             var match = regex.exec(window.location.hash);
@@ -141,6 +140,43 @@ new Vue({
                 // Otherwise we load the next photo
                 this.fetchNextPhoto();
             }
+        },
+
+        // Global keyboard bindings
+        addKeyEventListeners: function() {
+            var self = this;
+
+            window.addEventListener('keyup', function(e) {
+                // Submit on enter when training done
+                if (e.keyCode === 13) {
+                    if (self.$data.training_done) {
+                        self.submitResult();
+                    }
+                }
+
+                // Select 'choice' on numeric key (not 0)
+                if ((e.keyCode >= 49 && e.keyCode <= 57) || (e.keyCode >= 97 && e.keyCode <= 105)) {
+                    // If we're done training we ignore the key press
+                    if (self.$data.training_done) {
+                        return;
+                    }
+
+                    // If the active pattern is not a select, we ignore the key press
+                    var pattern = self.$data.patterns[self.$data.active_index];
+                    console.log(pattern.input);
+                    if (pattern.input !== 'select') {
+                        return;
+                    }
+
+                    var idx;
+                    if (e.keyCode >= 49 && e.keyCode <= 57) {
+                        idx = e.keyCode - 49;
+                    } else {
+                        idx = e.keyCode - 97;
+                    }
+                    self.setActivePatternResult(pattern.choices[idx]);
+                }
+            });
         }
     },
     mounted: function() {
@@ -148,5 +184,6 @@ new Vue({
         this.fetchPhotoFromHash();
         this.fetchPatterns();
         // Add global keybindings
+        this.addKeyEventListeners();
     }
 });

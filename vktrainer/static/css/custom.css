@@ -23,6 +23,7 @@ ul.training-sets > li > div {
 .pattern-choice:hover {
     color: #fff;
     background-color: #337ab7;
+    cursor: pointer;
 }
 
 .pattern-choice > span.index {

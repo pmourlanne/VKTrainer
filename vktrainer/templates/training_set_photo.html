@@ -40,7 +40,7 @@
 
                 <template v-if="pattern.input === 'number_input'">
                     <div class="input-container" v-show="pattern.active">
-                        <input type="number" v-model="pattern.result" v-on:keyup.enter="enableNextPattern">
+                        <input type="number" v-model="pattern.result" v-on:keyup.enter.stop="enableNextPattern">
                         <button class="btn btn-xs btn-primary btn-confirm" type="button" v-on:click="enableNextPattern">Confirm</button>
                     </div>
                 </template>

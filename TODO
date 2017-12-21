@@ -1,11 +1,9 @@
 Ansible playbook
-Vue :o
 Login
-Incomplete training set result?
 Better mass ingest photo (md5 verification?)
 Crisp UX on training
 Display % of completion of training set
 Server side tests
 Client side tests
-Keybindings: back, skip, choice pattern and submit
-CSS: change on cursor on 'option' hover
+Keybindings: back, skip
+vue.min.js for production
