@@ -8,6 +8,8 @@ from shutil import copyfile
 from flask import url_for
 from flask_login import UserMixin
 
+from sqlalchemy import func, desc
+
 from vktrainer import db, app, login_manager
 from vktrainer.utils import get_md5
 
@@ -80,10 +82,29 @@ class TrainingSet(db.Model):
         return url_for('training_set', pk=self.id)
 
     def get_results_url(self):
-        return url_for('training_set_extract_results', pk=self.id)
+        return url_for('training_set_results', pk=self.id)
+
+    def get_leaderboard_url(self):
+        return url_for('training_set_leaderboard', pk=self.id)
 
     def get_results(self):
         return [tr.get_pretty_result() for tr in self.training_results.all()]
+
+    def get_leaderboard(self):
+        count = func.count(TrainingResult.id)
+
+        return self.training_results.join(
+            TrainingResult.user,
+        ).add_column(
+            count,
+        ).group_by(
+            TrainingResult.user_id,
+        ).order_by(
+            desc(count),
+        ).values(
+            User.name,
+            count,
+        )
 
     def get_first_photo(self):
         if app.config['SHOW_PICTURES_ORDERING'] == 'linear':
@@ -169,7 +190,7 @@ class TrainingResult(db.Model):
 
     training_set = db.relation('TrainingSet', backref=db.backref('training_results', lazy='dynamic'))
     photo = db.relation('Photo')
-    user = db.relation('User')
+    user = db.relation('User', lazy='joined', backref=db.backref('training_results'))
     result = db.Column(db.Text)  # Result stored in JSON
 
     def get_pretty_result(self):

@@ -164,7 +164,19 @@ def training_set_photo_post_result(training_set_pk):
 
 @app.route('/trainingset/<int:pk>/results')
 @login_required
-def training_set_extract_results(pk):
+def training_set_results(pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
     results = training_set.get_results()
     return jsonify({'results': results})
+
+
+@app.route('/trainingset/<int:pk>/leaderboard')
+@login_required
+def training_set_leaderboard(pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+
+    ctx = {
+        'training_set': training_set,
+    }
+    
+    return render_template('training_set_leaderboard.html', **ctx)

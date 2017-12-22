@@ -29,13 +29,9 @@
                 <a class="navbar-brand" href="/">VK Trainer</a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                {#
                 <ul class="nav navbar-nav">
-                    <li>
-                        <a href="#">Create training set (Soon)</a>
-                    </li>
+                    {% block navbar %}{% endblock %}
                 </ul>
-                #}
                 <ul class="nav navbar-nav navbar-right">
                     {% block navbar_right %}{% endblock %}
 

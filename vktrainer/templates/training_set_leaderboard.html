@@ -1,0 +1,32 @@
+{% extends 'base_training_set.html' %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-xs-12">
+        <h2>Leaderboard for {{ training_set.name }} training set</h2>
+        <hr>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        Username
+                    </th>
+                    <th>
+                        Nb. of results
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for username, nb_results in training_set.get_leaderboard() %}
+                <tr>
+                    <td>{{ username }}</td>
+                    <td>{{ nb_results }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
