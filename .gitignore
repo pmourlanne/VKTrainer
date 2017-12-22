@@ -1,4 +1,5 @@
 *.pyc
+*.retry
 app.db
 local_settings.py
 vktrainer/pictures/*

@@ -1,0 +1,60 @@
+# User
+- name: Create vktrainer user
+  user: name=vktrainer
+
+# Git
+- name: Install git package
+  apt: pkg=git state=present
+
+- name: Create repo directory
+  file: path=/srv/vktrainer state=directory owner=vktrainer group=vktrainer mode=0775
+
+- name: Download repo
+  git: repo=https://github.com/pmourlanne/VKTrainer.git dest=/srv/vktrainer version=vue
+  become_user: vktrainer
+
+# Venv
+- name: Install virtualenv package
+  apt: pkg=python-virtualenv state=present update_cache=yes
+
+- name: Install requirements in venv
+  pip: requirements=/srv/vktrainer/requirements.txt virtualenv=/srv/vktrainer/venv
+  become_user: vktrainer
+
+# Supervisor
+- name: Install supervisor package
+  apt: pkg=supervisor state=present update_cache=yes
+
+- name: Make sure the log directory exists
+  file:
+    path=/var/log/vktrainer
+    owner=vktrainer
+    group=vktrainer
+    state=directory
+
+- name: Copy vktrainer_wsgi conf
+  template: src=vktrainer_wsgi.conf dest=/etc/supervisor/conf.d/vktrainer_wsgi.conf
+
+- name: Supervisor reread
+  command: /usr/bin/supervisorctl reread
+
+- name: Supervisor update
+  command: /usr/bin/supervisorctl update
+
+- name: Restart supervisor job
+  supervisorctl: name=vktrainer_wsgi state=restarted
+
+# Nginx
+- name: Install nginx package
+  apt: pkg=nginx state=present update_cache=yes
+
+- name: Copy nginx conf
+  template: src=vktrainer.conf dest=/etc/nginx/sites-enabled/vktrainer.conf
+
+- name: Restart nginx
+  service: name=nginx state=restarted
+
+# Flask app
+- name: Launch syncdb on remote machine
+  shell: /srv/vktrainer/venv/bin/python /srv/vktrainer/manage.py syncdb
+  become_user: vktrainer
