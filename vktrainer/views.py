@@ -56,7 +56,7 @@ def training_set(pk):
     if not first_photo:
         return render_template('empty_training_set.html')
 
-    return redirect(url_for('training_set_photo', training_set_pk=pk, pk=first_photo.id))
+    return redirect(url_for('training_set_photo', training_set_pk=pk))
 
 
 @app.route('/trainingset/<int:training_set_pk>/photo/')
