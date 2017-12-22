@@ -181,7 +181,6 @@ def training_set_results(pk):
 
 
 @app.route('/trainingset/<int:pk>/leaderboard')
-@login_required
 def training_set_leaderboard(pk):
     training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
 
