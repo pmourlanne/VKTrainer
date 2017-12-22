@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
 {% block navbar %}
+{{ super() }}
 
 <li>
     <a href="{{ training_set.get_leaderboard_url() }}">Leaderboard</a>
 </li>
 <li>
-    <a href="{{ training_set.get_results_url() }}">Get results</a>
+    <a href="{{ training_set.get_results_url() }}">Results</a>
 </li>
 
 {% endblock %}

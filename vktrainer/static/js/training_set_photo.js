@@ -1,15 +1,22 @@
 new Vue({
     delimiters: ['[[', ']]'],
-    el: '#body_container',
+    el: '#app',
     data: {
         'photo_pk': '',
         'photo_url': '',
         'photo_name': '',
         'patterns': [],
         'active_index': 0,
-        'training_done': false
+        'training_done': false,
+        'percentage_done': 0
     },
     methods: {
+        // URL helpers
+        _getBaseUrl: function() {
+            var url = window.location.pathname;
+            return url.substring(0, url.indexOf('/photo/'));
+        },
+
         // Actual training
         _disableActivePattern: function() {
             this.$data.patterns[this.$data.active_index].active = false;
@@ -76,22 +83,19 @@ new Vue({
                 'photo': this.$data.photo_pk
             };
 
-            var url = window.location.pathname;
-            url = url.substring(0, url.indexOf('/photo/'));
-            url += '/result/';
+            var url = this._getBaseUrl() + '/result/';
 
             var self = this;
             $.post(url, data, function(data) {
                 self.resetPatterns();
                 self.fetchNextPhoto();
+                self.fetchPercentageDone();
             });
         },
 
         // Patterns fetch and load
         fetchPatterns: function() {
-            var url = window.location.pathname;
-            url = url.substring(0, url.indexOf('/photo/'));
-            url += '/patterns/';
+            var url = this._getBaseUrl() + '/patterns/';
 
             var self = this;
             $.get(url, function(data) {
@@ -150,6 +154,16 @@ new Vue({
             }
         },
 
+        // Percentage display
+        fetchPercentageDone: function() {
+            var url = this._getBaseUrl() + '/percentage_done/';
+            var self = this;
+
+            $.get(url, function(data) {
+                self.$data.percentage_done = data.percentage_done;
+            });
+        },
+
         // Global keyboard bindings
         addKeyEventListeners: function() {
             var self = this;
@@ -195,6 +209,7 @@ new Vue({
         // Fetch data
         this.fetchPhotoFromHash();
         this.fetchPatterns();
+        this.fetchPercentageDone();
         // Add global keybindings
         this.addKeyEventListeners();
     }

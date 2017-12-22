@@ -1,5 +1,18 @@
 {% extends 'base_training_set.html' %}
 
+{% block navbar %}
+{{ super() }}
+
+<li>
+    <div class="nav navbar-text progress">
+        <div class="progress-bar progress-bar-success" :style="{width: percentage_done + '%'}">
+            <span>[[ percentage_done ]]%</span>
+        </div>
+    </div>
+</li>
+
+{% endblock %}
+
 {% block body %}
 
 <div class="row">

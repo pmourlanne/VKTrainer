@@ -106,6 +106,14 @@ class TrainingSet(db.Model):
             count,
         )
 
+    def get_percentage_done(self):
+        nb_photos_with_results = self.photos.filter(
+            Photo.id.in_(self.training_results.with_entities(TrainingResult.photo_id))
+        ).count()
+        nb_photos = self.photos.count()
+
+        return float(nb_photos_with_results) / nb_photos * 100
+
     def get_first_photo(self):
         if app.config['SHOW_PICTURES_ORDERING'] == 'linear':
             return self.photos.order_by('id').first()

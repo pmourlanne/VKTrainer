@@ -90,6 +90,16 @@ def training_set_patterns(training_set_pk):
     })
 
 
+@app.route('/trainingset/<int:training_set_pk>/percentage_done/')
+@login_required
+def training_set_percentage_done(training_set_pk):
+    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+
+    return jsonify({
+        'percentage_done': int(training_set.get_percentage_done()),
+    })
+
+
 @app.route('/trainingset/<int:training_set_pk>/photo/<int:pk>')
 @login_required
 def training_set_get_photo(training_set_pk, pk):

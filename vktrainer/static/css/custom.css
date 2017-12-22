@@ -36,3 +36,17 @@ ul.training-sets > li > div {
     word-wrap: break-word;
     margin-top: 10px;
 }
+
+.nav.navbar-text.progress {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 250px;
+    position: relative;
+}
+
+.nav.navbar-text.progress .progress-bar span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+}
