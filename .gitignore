@@ -1,5 +1,6 @@
 *.pyc
 *.retry
+.cache/
 app.db
 local_settings.py
 vktrainer/pictures/*

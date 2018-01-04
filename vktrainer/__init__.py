@@ -5,9 +5,13 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
 
-app = Flask(__name__)
-app.config.from_object('settings')
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object('settings')
+    return app
 
+
+app = create_app()
 db = SQLAlchemy(app)
 
 # Flask login
