@@ -1,3 +1,8 @@
+Vue.component('photo', {
+    props: ['photo_url'],
+    template: '#template_photo'
+});
+
 new Vue({
     delimiters: ['[[', ']]'],
     el: '#app',
