@@ -1,27 +1,39 @@
-Vue.component('photo', {
-    props: ['photo_url'],
-    template: '#template_photo'
+var _getBaseUrl = function() {
+    var url = window.location.pathname;
+    return url.substring(0, url.indexOf('/photo/'));
+};
+
+
+Vue.component('img-responsive', {
+    delimiters: ['[[', ']]'],
+    template: '#template_img_responsive',
+    props: ['img_url']
 });
 
-new Vue({
+Vue.component('progress-bar', {
     delimiters: ['[[', ']]'],
-    el: '#app',
-    data: {
-        'photo_pk': '',
-        'photo_url': '',
-        'photo_name': '',
-        'patterns': [],
-        'active_index': 0,
-        'training_done': false,
-        'percentage_done': 0
+    template: '#template_progress_bar',
+    props: ['percentage']
+});
+
+Vue.component('small-text', {
+    delimiters: ['[[', ']]'],
+    template: '#template_small_text',
+    props: ['text']
+});
+
+Vue.component('features', {
+    delimiters: ['[[', ']]'],
+    props: ['photo_pk'],
+    template: '#template_features',
+    data: function() {
+        return {
+            'patterns': [],
+            'active_index': 0,
+            'training_done': false
+        };
     },
     methods: {
-        // URL helpers
-        _getBaseUrl: function() {
-            var url = window.location.pathname;
-            return url.substring(0, url.indexOf('/photo/'));
-        },
-
         // Actual training
         _disableActivePattern: function() {
             this.$data.patterns[this.$data.active_index].active = false;
@@ -83,24 +95,24 @@ new Vue({
                 pattern = this.$data.patterns[i];
                 training_result[pattern.name] = pattern.result;
             }
+
             data = {
                 'training_result': JSON.stringify(training_result),
-                'photo': this.$data.photo_pk
+                'photo': this.photo_pk
             };
 
-            var url = this._getBaseUrl() + '/result/';
+            var url = _getBaseUrl() + '/result/';
 
             var self = this;
             $.post(url, data, function(data) {
                 self.resetPatterns();
-                self.fetchNextPhoto();
-                self.fetchPercentageDone();
+                self.$emit('result_posted');
             });
         },
 
-        // Patterns fetch and load
+        // Fetch and reset
         fetchPatterns: function() {
-            var url = this._getBaseUrl() + '/patterns/';
+            var url = _getBaseUrl() + '/patterns/';
 
             var self = this;
             $.get(url, function(data) {
@@ -119,54 +131,6 @@ new Vue({
             this.$data.training_done = false;
             // Enable the first pattern
             this._enablePattern(0);
-        },
-
-        // Photo fetch and load
-        fetchNextPhoto: function() {
-            var url = window.location.pathname + 'next/';
-            if (this.photo_pk !== '') {
-                url += '?photo=' + this.photo_pk;
-            }
-            this.fetchPhoto(url);
-        },
-        fetchPhoto: function(url) {
-            var self = this;
-            $.get(url, function(data) {
-                self.loadPhoto(data);
-            });
-        },
-        loadPhoto: function(data) {
-            // Load the photo
-            this.$data.photo_pk = data.pk;
-            this.$data.photo_url = data.url;
-            this.$data.photo_name = data.name;
-
-            // Update the url
-            window.location.hash = '#/' + this.$data.photo_pk;
-        },
-        fetchPhotoFromHash: function() {
-            // We try to get the photo pk from the hash
-            var regex = /#\/(\d)/g;
-            var match = regex.exec(window.location.hash);
-            if (match) {
-                // If there is one, we use it
-                var pk = match[1];
-                var url = window.location.pathname + pk;
-                this.fetchPhoto(url);
-            } else {
-                // Otherwise we load the next photo
-                this.fetchNextPhoto();
-            }
-        },
-
-        // Percentage display
-        fetchPercentageDone: function() {
-            var url = this._getBaseUrl() + '/percentage_done/';
-            var self = this;
-
-            $.get(url, function(data) {
-                self.$data.percentage_done = data.percentage_done;
-            });
         },
 
         // Global keyboard bindings
@@ -211,11 +175,77 @@ new Vue({
         }
     },
     mounted: function() {
+        this.fetchPatterns();
+        this.addKeyEventListeners();
+    }
+});
+
+new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#app',
+    data: {
+        'photo_pk': '',
+        'photo_url': '',
+        'photo_name': '',
+        'percentage_done': 0
+    },
+    methods: {
+        // Photo fetch and load
+        fetchNextPhoto: function() {
+            var url = window.location.pathname + 'next/';
+            if (this.photo_pk !== '') {
+                url += '?photo=' + this.photo_pk;
+            }
+            this.fetchPhoto(url);
+        },
+        fetchPhoto: function(url) {
+            var self = this;
+            $.get(url, function(data) {
+                self.loadPhoto(data);
+            });
+        },
+        loadPhoto: function(data) {
+            // Load the photo
+            this.$data.photo_pk = data.pk;
+            this.$data.photo_url = data.url;
+            this.$data.photo_name = data.name;
+
+            // Update the url
+            window.location.hash = '#/' + this.$data.photo_pk;
+        },
+        fetchPhotoFromHash: function() {
+            // We try to get the photo pk from the hash
+            var regex = /#\/(\d)/g;
+            var match = regex.exec(window.location.hash);
+            if (match) {
+                // If there is one, we use it
+                var pk = match[1];
+                var url = window.location.pathname + pk;
+                this.fetchPhoto(url);
+            } else {
+                // Otherwise we load the next photo
+                this.fetchNextPhoto();
+            }
+        },
+
+        // Percentage display
+        fetchPercentageDone: function() {
+            var url = _getBaseUrl() + '/percentage_done/';
+            var self = this;
+
+            $.get(url, function(data) {
+                self.$data.percentage_done = data.percentage_done;
+            });
+        },
+
+        handleResultPosted: function() {
+            this.fetchNextPhoto();
+            this.fetchPercentageDone();
+        }
+    },
+    mounted: function() {
         // Fetch data
         this.fetchPhotoFromHash();
-        this.fetchPatterns();
         this.fetchPercentageDone();
-        // Add global keybindings
-        this.addKeyEventListeners();
     }
 });
