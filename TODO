@@ -1,7 +1,7 @@
 py3
 Better mass ingest photo (md5 verification?)
-More Server side tests
+More Server side tests:
+    - Nb of queries on results page
 Client side tests
 Keybinding for back?
-Use Vue components :o
 Pattern with point on face
