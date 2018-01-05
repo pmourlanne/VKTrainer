@@ -1,33 +1,40 @@
 # -*- coding: utf-8 -*-
 
-from vktrainer.models import TrainingResult, User
+from vktrainer.tests.conftest import assert_num_queries
 
 
-def test_get_leaderboard(db, training_set, photo):
-    def _create_training_result(name):
-        user = User.query.filter(User.name == name).first()
-        if not user:
-            user = User(name=name)
-            db.session.add(user)
-            db.session.commit()
-
-        result = TrainingResult(training_set=training_set, photo=photo, user=user)
-        db.session.add(result)
-        db.session.commit()
-
-        return result
-
+def test_get_leaderboard(db, training_set, user_factory, result_factory):
     # No results
     assert list(training_set.get_leaderboard()) == []
 
     # We create one result
-    _create_training_result(name='Terry')
+    terry = user_factory.get(name='Terry')
+    result_factory.get(user=terry)
     assert list(training_set.get_leaderboard()) == [('Terry', 1)]
 
     # We create a result from someone else
-    _create_training_result(name='John')
+    john = user_factory.get(name='John')
+    result_factory.get(user=john)
     assert list(training_set.get_leaderboard()) == [('Terry', 1), ('John', 1)]
 
     # Second user has two results
-    _create_training_result(name='John')
+    result_factory.get(user=john)
     assert list(training_set.get_leaderboard()) == [('John', 2), ('Terry', 1)]
+
+
+def test_list_results_nb_queries(db, training_set, result_factory):
+    nb_queries_no_results = 2
+    nb_queries = 3
+
+    # No results
+    with assert_num_queries(db, nb_queries_no_results):
+        assert training_set.get_results() == []
+
+    # Number of queries is fixed
+    result_factory.get()
+    with assert_num_queries(db, nb_queries):
+        assert len(training_set.get_results()) == 1
+
+    [result_factory.get() for i in xrange(10)]
+    with assert_num_queries(db, nb_queries):
+        assert len(training_set.get_results()) == 11
