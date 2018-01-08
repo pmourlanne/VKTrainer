@@ -27,7 +27,6 @@ def db(app, request):
         os.unlink(app.config['DB_PATH'])
 
     def teardown():
-        _db.drop_all()
         os.unlink(app.config['DB_PATH'])
 
     _db.init_app(app)

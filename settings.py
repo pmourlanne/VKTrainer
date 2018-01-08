@@ -8,9 +8,6 @@ DB_PATH = os.path.join(basedir, 'app.db')
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DB_PATH
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'migrations')
 
-PICTURES_FOLDER = 'pictures/'
-TMP_PICTURES_FOLDER = '/tmp/'
-
 # Possible values : 'linear' and 'semi-random'
 SHOW_PICTURES_ORDERING = 'linear'
 

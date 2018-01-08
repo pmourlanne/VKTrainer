@@ -5,12 +5,13 @@ import os
 import random
 from shutil import copyfile
 
-from flask import url_for
+from flask import url_for, current_app as app
 from flask_login import UserMixin
 
 from sqlalchemy import func, desc
 
-from vktrainer import db, app, login_manager
+# from vktrainer import db, app, login_manager
+from vktrainer import db, login_manager
 from vktrainer.utils import get_md5
 
 
@@ -28,6 +29,19 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return self.name
 
+    @classmethod
+    def get_or_create(cls, name):
+        user = cls.query.filter(cls.name == name).first()
+
+        if not user:
+            user = cls(name=name)
+            db.session.add(user)
+            db.session.commit()
+
+            return user, True
+
+        return user, False
+
 
 @login_manager.user_loader
 def load_user(userid):
@@ -41,6 +55,8 @@ class Photo(db.Model):
     picture = db.Column(db.String(128))
     md5 = db.Column(db.String(64))
 
+    PICTURES_FOLDER = 'pictures/'
+
     @classmethod
     def create_from_file(cls, file, check_if_exists=True):
         # We check no photo with the same md5 already exists in db
@@ -52,7 +68,7 @@ class Photo(db.Model):
 
         # We copy the file
         _, filename = os.path.split(file)
-        path = os.path.join('vktrainer', app.config['PICTURES_FOLDER'], md5)
+        path = os.path.join('vktrainer', cls.PICTURES_FOLDER, md5)
         copyfile(file, path)
 
         name, _ = os.path.splitext(filename)
@@ -62,10 +78,10 @@ class Photo(db.Model):
         return photo
 
     def get_path(self):
-        return os.path.join(app.config['PICTURES_FOLDER'], self.md5)
+        return os.path.join(self.PICTURES_FOLDER, self.md5)
 
     def get_absolute_url(self):
-        return url_for('show_photo', pk=self.id)
+        return url_for('vktrainer.show_photo', pk=self.id)
 
 
 class TrainingSet(db.Model):
@@ -79,13 +95,13 @@ class TrainingSet(db.Model):
         return self.name
 
     def get_absolute_url(self):
-        return url_for('training_set', pk=self.id)
+        return url_for('vktrainer.training_set', pk=self.id)
 
     def get_results_url(self):
-        return url_for('training_set_results', pk=self.id)
+        return url_for('vktrainer.training_set_results', pk=self.id)
 
     def get_leaderboard_url(self):
-        return url_for('training_set_leaderboard', pk=self.id)
+        return url_for('vktrainer.training_set_leaderboard', pk=self.id)
 
     def get_results(self):
         return [tr.get_pretty_result() for tr in self.training_results.all()]
@@ -125,12 +141,6 @@ class TrainingSet(db.Model):
             return self._get_next_photo_linear(photo)
         else:
             return self._get_next_photo_semi_random(photo)
-
-    def get_previous_photo(self, photo):
-        if app.config['SHOW_PICTURES_ORDERING'] == 'linear':
-            return self._get_previous_photo_linear(photo)
-        else:
-            return self._get_previous_photo_semi_random(photo)
 
     def _get_next_photo_linear(self, photo):
         next_photo = self.photos.filter(Photo.id > photo.id).order_by('id').first()
@@ -228,3 +238,17 @@ class TrainingResult(db.Model):
             'result': result,
             'id': self.id,
         }
+
+    @classmethod
+    def create(cls, photo, training_set, user, result):
+        training_result = cls(
+            photo=photo,
+            training_set=training_set,
+            user=user,
+            result=result,
+        )
+
+        db.session.add(training_result)
+        db.session.commit()
+
+        return training_result

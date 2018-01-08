@@ -42,10 +42,10 @@
                                 {{ current_user }} <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                                <li><a href="{{ url_for('vktrainer.logout') }}">Logout</a></li>
                             </ul>
                             {% else %}
-                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('vktrainer.login') }}">Login</a>
                             {% endif %}
                         </li>
                     </ul>
