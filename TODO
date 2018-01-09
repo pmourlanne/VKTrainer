@@ -1,6 +1,6 @@
-py3
 Better mass ingest photo (md5 verification?)
 More Server side tests
 Client side tests
 Keybinding for back?
 Pattern with point on face
+Update Ansible playbook to use py3
