@@ -21,6 +21,11 @@ class NumberInputPattern(object):
     input = 'number_input'
 
 
+class PointPattern(object):
+    reference = 'point'
+    input = 'point'
+
+
 REF_TO_PATTERN_CLASS = {}
 
 
