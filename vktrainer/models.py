@@ -91,7 +91,7 @@ class TrainingSet(db.Model):
     photos = db.dynamic_loader(
         'Photo', secondary=photos, backref=db.backref('training_sets', lazy='dynamic'))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):

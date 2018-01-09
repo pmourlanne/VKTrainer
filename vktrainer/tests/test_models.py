@@ -35,6 +35,6 @@ def test_list_results_nb_queries(db, training_set, result_factory):
     with assert_num_queries(db, nb_queries):
         assert len(training_set.get_results()) == 1
 
-    [result_factory.get() for i in xrange(10)]
+    [result_factory.get() for i in range(10)]
     with assert_num_queries(db, nb_queries):
         assert len(training_set.get_results()) == 11

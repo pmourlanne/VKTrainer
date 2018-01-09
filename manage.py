@@ -12,11 +12,11 @@ manager = Manager(app)
 @manager.command
 def syncdb():
     """Create the database tables"""
-    from vktrainer.models import *
+    # from vktrainer.models import *
 
-    print 'Using database %s' % db.engine.url
+    print('Using database %s' % db.engine.url)
     db.create_all()
-    print 'Created tables'
+    print('Created tables')
 
 
 @manager.option('-f', '--folder', help='Pictures to import folder from')
@@ -39,11 +39,11 @@ def import_photos(folder):
     for file in files:
         photo = Photo.create_from_file(file)
         if photo is None:
-            print 'Not importing {} since it is already in db'.format(file)
+            print('Not importing {} since it is already in db'.format(file))
             continue
 
         photos.append(photo)
-        print 'Successfully imported {}'.format(file)
+        print('Successfully imported {}'.format(file))
 
     return photos
 
@@ -88,7 +88,7 @@ def bootstrapdb():
     db.session.add(age)
     db.session.commit()
 
-    print 'Successfully bootstrapped db'
+    print('Successfully bootstrapped db')
 
 
 if __name__ == '__main__':

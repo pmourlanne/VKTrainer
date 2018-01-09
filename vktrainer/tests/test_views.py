@@ -9,9 +9,9 @@ from vktrainer.tests.conftest import assert_url
 def test_home(client, training_set):
     res = client.get(url_for('vktrainer.home'))
 
-    assert 'Voight-Kampff' in res.data
-    assert 'Training sets' in res.data
-    assert training_set.name in res.data
+    assert b'Voight-Kampff' in res.data
+    assert b'Training sets' in res.data
+    assert training_set.name.encode('ascii') in res.data
 
 
 def test_login(client, user, no_csrf):

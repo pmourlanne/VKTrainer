@@ -14,7 +14,6 @@ from werkzeug.exceptions import abort
 
 from vktrainer.forms import LoginForm
 from vktrainer.models import TrainingSet, Photo, TrainingResult, User
-from vktrainer.utils import get_object_or_404
 
 
 vktrainer_bp = Blueprint('vktrainer', __name__)
@@ -56,7 +55,7 @@ def logout():
 @vktrainer_bp.route('/trainingset/<int:pk>')
 @login_required
 def training_set(pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == pk).first_or_404()
     first_photo = training_set.get_first_photo()
 
     if not first_photo:
@@ -68,7 +67,7 @@ def training_set(pk):
 @vktrainer_bp.route('/trainingset/<int:training_set_pk>/photo/')
 @login_required
 def training_set_photo(training_set_pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == training_set_pk).first_or_404()
 
     ctx = {
         'training_set': training_set,
@@ -80,7 +79,7 @@ def training_set_photo(training_set_pk):
 @vktrainer_bp.route('/trainingset/<int:training_set_pk>/patterns/')
 @login_required
 def training_set_patterns(training_set_pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == training_set_pk).first_or_404()
 
     patterns = []
     for pattern in training_set.patterns.order_by('position'):
@@ -99,7 +98,7 @@ def training_set_patterns(training_set_pk):
 @vktrainer_bp.route('/trainingset/<int:training_set_pk>/percentage_done/')
 @login_required
 def training_set_percentage_done(training_set_pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == training_set_pk).first_or_404()
 
     return jsonify({
         'percentage_done': int(training_set.get_percentage_done()),
@@ -109,7 +108,7 @@ def training_set_percentage_done(training_set_pk):
 @vktrainer_bp.route('/trainingset/<int:training_set_pk>/photo/<int:pk>')
 @login_required
 def training_set_get_photo(training_set_pk, pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == training_set_pk).first_or_404()
     photo = training_set.photos.filter_by(id=pk).first()
 
     if photo is None:
@@ -125,7 +124,7 @@ def training_set_get_photo(training_set_pk, pk):
 @vktrainer_bp.route('/trainingset/<int:training_set_pk>/photo/next/')
 @login_required
 def training_set_next_photo(training_set_pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == training_set_pk).first_or_404()
 
     current_photo = None
     current_photo_pk = request.args.get('photo')
@@ -147,14 +146,14 @@ def training_set_next_photo(training_set_pk):
 @vktrainer_bp.route('/photo/<int:pk>')
 @login_required
 def show_photo(pk):
-    photo = get_object_or_404(Photo, Photo.id == pk)
+    photo = Photo.query.filter(Photo.id == pk).first_or_404()
     return send_file(photo.get_path())
 
 
 @vktrainer_bp.route('/trainingset/<int:training_set_pk>/result/', methods=['POST', ])
 @login_required
 def training_set_photo_post_result(training_set_pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == training_set_pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == training_set_pk).first_or_404()
 
     data = request.form
     photo_pk = data.get('photo')
@@ -179,14 +178,14 @@ def training_set_photo_post_result(training_set_pk):
 @vktrainer_bp.route('/trainingset/<int:pk>/results')
 @login_required
 def training_set_results(pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == pk).first_or_404()
     results = training_set.get_results()
     return jsonify({'results': results})
 
 
 @vktrainer_bp.route('/trainingset/<int:pk>/leaderboard')
 def training_set_leaderboard(pk):
-    training_set = get_object_or_404(TrainingSet, TrainingSet.id == pk)
+    training_set = TrainingSet.query.filter(TrainingSet.id == pk).first_or_404()
 
     ctx = {
         'training_set': training_set,
