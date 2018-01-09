@@ -5,7 +5,7 @@ import os
 import pytest
 import sqlalchemy
 
-from vktrainer import create_app, db as _db
+from vktrainer import create_app, db as _db, login_manager
 from vktrainer.models import (
     TrainingSet,
     Photo,
@@ -18,6 +18,9 @@ from vktrainer.models import (
 def app():
     app = create_app()
     app.config.from_object('test_settings')
+
+    login_manager.init_app(app)
+
     return app
 
 
@@ -34,6 +37,17 @@ def db(app, request):
 
     request.addfinalizer(teardown)
     return _db
+
+
+@pytest.fixture
+def no_csrf(config, request):
+    def teardown():
+        config['WTF_CSRF_ENABLED'] = original_value
+
+    original_value = config.get('WTF_CSRF_ENABLED', True)
+    config['WTF_CSRF_ENABLED'] = False
+
+    request.addfinalizer(teardown)
 
 
 @pytest.fixture
@@ -131,3 +145,7 @@ class NumQueryAssertion(object):
             raise AssertionError(msg)
 
 assert_num_queries = NumQueryAssertion
+
+
+def assert_url(value, expected):
+    assert value == '{}{}'.format('http://localhost', expected)
