@@ -36,3 +36,4 @@ def register(klass):
 
 register(GenderPattern)
 register(NumberInputPattern)
+register(PointPattern)

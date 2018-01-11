@@ -7,7 +7,34 @@ var _getBaseUrl = function() {
 Vue.component('img-responsive', {
     delimiters: ['[[', ']]'],
     template: '#template_img_responsive',
-    props: ['img_url']
+    props: ['img_url'],
+    data: function() {
+        return {
+            canvasStyle: {
+                position: 'absolute',
+                width: 0,
+                height: 0
+            },
+            canvasClass: {
+                hidden: true
+            },
+        };
+    },
+    watch: {
+        img_url: function(new_url) {
+            // Fit canvas on image load
+            var self = this;
+            var img = self.$refs['img'];
+            var canvas = self.$refs['canvas'];
+
+            self.$data.canvasClass.hidden = true;
+            img.onload = function() {
+                self.$data.canvasStyle.width = img.width + 'px';
+                self.$data.canvasStyle.height = img.height + 'px';
+                self.$data.canvasClass.hidden = false;
+            };
+        }
+    }
 });
 
 Vue.component('progress-bar', {
@@ -37,6 +64,7 @@ Vue.component('features', {
         // Actual training
         _disableActivePattern: function() {
             this.$data.patterns[this.$data.active_index].active = false;
+            this.removeClickOnImageListener();
         },
         _enablePattern: function(index) {
             var pattern = this.$data.patterns[index];
@@ -49,6 +77,11 @@ Vue.component('features', {
             var input = this.$refs[pattern.name + '_input'];
             if (input) {
                 this.$nextTick(() => input[0].focus())
+            }
+
+            // Add click on image listener if relevant
+            if (pattern.input === 'point') {
+                this.addClickOnImageListener();
             }
         },
         enableNextPattern: function() {
@@ -172,6 +205,22 @@ Vue.component('features', {
                     self.setActivePatternResult(pattern.choices[idx]);
                 }
             });
+        },
+        // Click on image listeners
+        // This code should not be in this component, improve :O
+        addClickOnImageListener: function() {
+            var self = this;
+
+            $('#training_img').bind('click.feature', function(e) {
+                var offset = $(this).offset();
+                var x = e.pageX - offset.left;
+                var y = e.pageY - offset.top;
+
+                console.log('x: ' + x + ', y: ' + y);
+            });
+        },
+        removeClickOnImageListener: function() {
+            $('#training_img').unbind('click.feature');
         }
     },
     mounted: function() {
