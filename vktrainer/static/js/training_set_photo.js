@@ -4,6 +4,33 @@ var _getBaseUrl = function() {
 };
 
 
+var point_radius = 5;
+
+var drawPoint = function(canvas, x, y) {
+    var context = canvas.getContext("2d");
+
+    context.beginPath();
+    context.arc(x, y, point_radius, 0, 2 * Math.PI, false);
+    context.fillStyle = '#00FF00';
+    context.fill();
+    context.closePath();
+};
+
+
+var clearPoint = function(canvas, x, y) {
+    // We cheat and clear a rectangle around the point
+    var context = canvas.getContext("2d");
+    var radius = point_radius + 1;
+
+    context.clearRect(
+        x - radius,
+        y - radius,
+        radius * 2,
+        radius * 2
+    );
+}
+
+
 Vue.component('img-responsive', {
     delimiters: ['[[', ']]'],
     template: '#template_img_responsive',
@@ -69,8 +96,8 @@ Vue.component('features', {
         _enablePattern: function(index) {
             var pattern = this.$data.patterns[index];
 
+            this.resetPattern(pattern);
             pattern.active = true;
-            pattern.result = '';
             this.$data.active_index = index;
 
             // Give focus to the input if there is one
@@ -98,6 +125,12 @@ Vue.component('features', {
             this._enablePattern(active_index + 1);
         },
         enablePreviousPattern: function() {
+            var active_index = this.$data.active_index;
+            // We're already at the first pattern
+            if (active_index === 0) {
+                return;
+            }
+
             // We were done, we enable the last pattern
             if (this.$data.training_done) {
                 this.$data.training_done = false;
@@ -105,19 +138,13 @@ Vue.component('features', {
                 return;
             }
 
-            var active_index = this.$data.active_index;
-            // We're already at the first pattern
-            if (active_index === 0) {
-                return;
-            }
-
             // We're done with edge cases :o
             this._disableActivePattern();
-            this.$data.patterns[active_index].result = '';
+            this.resetPattern(this.$data.patterns[active_index])
             this._enablePattern(active_index - 1);
         },
-        setActivePatternResult: function(choice) {
-            this.$data.patterns[this.$data.active_index].result = choice;
+        setActivePatternResult: function(result) {
+            this.$data.patterns[this.$data.active_index].result = result;
             this.enableNextPattern();
         },
         submitResult: function() {
@@ -153,12 +180,23 @@ Vue.component('features', {
                 self._enablePattern(0);
             });
         },
+        resetPattern: function(pattern) {
+            if (pattern.input === 'point' && pattern.result) {
+                // We need to remove the actual point
+                var canvas = $('#training_img canvas')[0];
+                var x = pattern.result.x_abs;
+                var y = pattern.result.y_abs;
+                clearPoint(canvas, x, y);
+            }
+
+            pattern.result = '';
+        },
         resetPatterns: function() {
             var pattern, i;
             // Clean the patterns (result and active)
             for (i = 0; i < this.$data.patterns.length; i++) {
                 pattern = this.$data.patterns[i];
-                pattern.result = '';
+                this.resetPattern(pattern)
                 pattern.active = false;
             }
             this.$data.training_done = false;
@@ -211,16 +249,26 @@ Vue.component('features', {
         addClickOnImageListener: function() {
             var self = this;
 
-            $('#training_img').bind('click.feature', function(e) {
+            $('#training_img canvas').bind('click.pattern', function(e) {
                 var offset = $(this).offset();
                 var x = e.pageX - offset.left;
                 var y = e.pageY - offset.top;
+                var imgX = $(this).width();
+                var imgY = $(this).height();
 
-                console.log('x: ' + x + ', y: ' + y);
+                // Draw the point
+                drawPoint($(this)[0], x, y);
+                // Log the result
+                self.setActivePatternResult({
+                    x_abs: x,
+                    y_abs: y,
+                    x_rel: x / imgX,
+                    y_rel: y / imgY
+                });
             });
         },
         removeClickOnImageListener: function() {
-            $('#training_img').unbind('click.feature');
+            $('#training_img canvas').unbind('click.pattern');
         }
     },
     mounted: function() {

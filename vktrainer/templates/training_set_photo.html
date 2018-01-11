@@ -41,7 +41,7 @@
 
 <script type="text/x-template" id="template_img_responsive">
     <div>
-        <canvas :class="canvasClass" :style="canvasStyle" ref="canvas"></canvas>
+        <canvas :class="canvasClass" :height="canvasStyle.height" :width="canvasStyle.width" :style="canvasStyle" ref="canvas"></canvas>
         <img class="img-responsive" :src="img_url" ref="img">
     </div>
 </script>
