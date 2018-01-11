@@ -34,7 +34,7 @@ var clearPoint = function(canvas, x, y) {
 Vue.component('img-responsive', {
     delimiters: ['[[', ']]'],
     template: '#template_img_responsive',
-    props: ['img_url'],
+    props: ['img_url', 'img_name'],
     data: function() {
         return {
             canvasStyle: {

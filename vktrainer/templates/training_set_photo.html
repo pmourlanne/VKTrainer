@@ -18,7 +18,7 @@
 
 <div class="row">
     <div class="col-md-8 col-xs-12">
-        <img-responsive :img_url="photo_url" id="training_img"></img-responsive>
+        <img-responsive :img_url="photo_url" :img_name="photo_name" id="training_img"></img-responsive>
 
         <div class="col-xs-2 mt-20">
             <a type="button" class="btn btn-default" v-on:click="fetchNextPhoto">Skip to next photo</a>
@@ -42,7 +42,7 @@
 <script type="text/x-template" id="template_img_responsive">
     <div>
         <canvas :class="canvasClass" :height="canvasStyle.height" :width="canvasStyle.width" :style="canvasStyle" ref="canvas"></canvas>
-        <img class="img-responsive" :src="img_url" ref="img">
+        <img class="img-responsive" :src="img_url" :alt="img_name" ref="img">
     </div>
 </script>
 
