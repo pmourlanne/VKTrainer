@@ -175,6 +175,56 @@ def training_set_photo_post_result(training_set_pk):
     return jsonify({})
 
 
+@vktrainer_bp.route('/trainingset/<int:training_set_pk>/result/<int:result_pk>')
+@login_required
+def training_set_result(training_set_pk, result_pk):
+    training_set = TrainingSet.query.filter(TrainingSet.id == training_set_pk).first_or_404()
+    training_result = training_set.training_results.filter(TrainingResult.id == result_pk).first_or_404()
+
+    pretty_result = training_result.get_pretty_result()
+    result_state = pretty_result['result']['state']
+    result_value = pretty_result['result']['value']
+
+    points_coordinates = []
+    patterns_with_value = []
+    patterns = training_set.patterns.order_by('position')
+    for pattern in patterns:
+        pattern_result = result_value.get(pattern.name)
+
+        if pattern.pattern.input == 'point':
+            try:
+                x_abs = pattern_result['x_abs']
+                y_abs = pattern_result['y_abs']
+
+                points_coordinates.append((x_abs, y_abs))
+                patterns_with_value.append((
+                    pattern.name,
+                    '&#10003;',
+                ))
+
+            except KeyError:
+                patterns_with_value.append((
+                    pattern.name,
+                    None,
+                ))
+
+        else:
+            patterns_with_value.append((
+                pattern.name,
+                pattern_result,
+            ))
+
+    ctx = {
+        'training_set': training_set,
+        'photo': training_result.photo,
+        'result_state': result_state,
+        'points_coordinates': points_coordinates,
+        'patterns_with_value': patterns_with_value,
+    }
+
+    return render_template('training_set_result.html', **ctx)
+
+
 @vktrainer_bp.route('/trainingset/<int:pk>/results')
 @login_required
 def training_set_results(pk):

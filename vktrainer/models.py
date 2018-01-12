@@ -211,6 +211,13 @@ class TrainingResult(db.Model):
     user = db.relation('User', lazy='joined', backref=db.backref('training_results'))
     result = db.Column(db.Text)  # Result stored in JSON
 
+    def get_absolute_url(self):
+        return url_for(
+            'vktrainer.training_set_result',
+            training_set_pk=self.training_set.id,
+            result_pk=self.id,
+        )
+
     def get_pretty_result(self):
         try:
             loaded_result = json.loads(self.result)
@@ -237,6 +244,7 @@ class TrainingResult(db.Model):
             'user': self.user.name if self.user else None,
             'result': result,
             'id': self.id,
+            'url': self.get_absolute_url(),
         }
 
     @classmethod

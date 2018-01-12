@@ -1,0 +1,72 @@
+{% extends 'base_training_set.html' %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">
+            {{ training_set.name }}
+            <small>{{ photo.name }}</small>
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-xs-12">
+        <img class="img-responsive" src="{{ photo.get_absolute_url() }}" id="img">
+        <canvas class="hidden" style="position: absolute; top: 0;" id="canvas"></canvas>
+    </div>
+
+    <div class="col-md-4 col-xs-12">
+        <h3>Features</h3>
+        {% if result_state == 'KO' %}
+        Could not load JSON result
+        {% else %}
+        <ul>
+            {% for pattern, value in patterns_with_value %}
+            <li>
+                <span>{{ pattern }}</span>
+                {% if not value %}
+                    <span><i>Skipped</i></span>
+                {% else %}
+                    <span><i>{{ value|safe }}</i></span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block end_body_js %}
+{{ super() }}
+
+<script src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+<script type="text/javascript">
+    $('document').ready(function() {
+        var $img = $('#img');
+        var img = $img[0];
+
+        img.onload = function() {
+            var $canvas = $('#canvas');
+            var canvas = $canvas[0];
+
+            $canvas.attr('width', $img.width() + 'px');
+            $canvas.attr('height', $img.height() + 'px');
+            $canvas.removeClass('hidden');
+
+            var points_coordinates = JSON.parse("{{ points_coordinates|tojson|safe }}");
+            var x, y;
+
+            $.each(points_coordinates, function(idx, coordinates) {
+                x = coordinates[0];
+                y = coordinates[1];
+                drawPoint(canvas, x, y);
+            });
+        }
+    });
+</script>
+
+{% endblock %}
