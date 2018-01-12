@@ -15,12 +15,12 @@
         {% for training_set in training_sets %}
             <li>
                 <div class='col-xs-10'>
-                {{ training_set }}
-                <div class="pull-right">
-                <a href="{{ training_set.get_absolute_url() }}" class="btn btn-primary">Tagging</a>
-                <a href="{{ training_set.get_leaderboard_url() }}" class="btn btn-default">Leaderboard</a>
-                <a href="{{ training_set.get_results_url() }}" class="btn btn-default">Results</a>
-                </div>
+                    <div class="pull-left mt-7">{{ training_set }}</div>
+                    <div class="pull-right">
+                        <a href="{{ training_set.get_absolute_url() }}" class="btn btn-primary">Tagging</a>
+                        <a href="{{ training_set.get_leaderboard_url() }}" class="btn btn-default">Leaderboard</a>
+                        <a href="{{ training_set.get_results_url() }}" class="btn btn-default">Results</a>
+                    </div>
                 </div>
             </li>
         {% endfor %}

@@ -308,6 +308,20 @@ new Vue({
             });
         },
 
+        // Incorrect photo
+        postIncorrectPhoto: function() {
+            var data = {
+                'photo': this.$data.photo_pk,
+                'photo_is_incorrect': true,
+            };
+            var url = _getBaseUrl() + '/result/';
+
+            var self = this;
+            $.post(url, data, function(data) {
+                self.handleResultPosted();
+            });
+        },
+
         handleResultPosted: function() {
             this.fetchNextPhoto();
             this.fetchPercentageDone();

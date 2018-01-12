@@ -1,5 +1,3 @@
-Way to mark image as incorrect (eg. not a face)
-
 Update Ansible playbook to use py3
 
 Better mass ingest photo (md5 verification?)

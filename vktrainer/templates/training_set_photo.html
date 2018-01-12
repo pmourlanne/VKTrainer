@@ -20,9 +20,9 @@
     <div class="col-md-8 col-xs-12">
         <img-responsive :img_url="photo_url" :img_name="photo_name" id="training_img"></img-responsive>
 
-        <div class="col-xs-2 mt-20">
+        <div class="col-xs-12 mt-20">
             <a type="button" class="btn btn-default" v-on:click="fetchNextPhoto">Skip to next photo</a>
-            <button type="button" class="btn btn-primary hidden">Confirm</button>
+            <a type="button" class="btn btn-danger" v-on:click="postIncorrectPhoto">Incorrect photo</a>
         </div>
 
     </div>

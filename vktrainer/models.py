@@ -210,6 +210,7 @@ class TrainingResult(db.Model):
     photo = db.relation('Photo')
     user = db.relation('User', lazy='joined', backref=db.backref('training_results'))
     result = db.Column(db.Text)  # Result stored in JSON
+    photo_is_incorrect = db.Column(db.Boolean, default=False)
 
     def get_absolute_url(self):
         return url_for(
@@ -219,22 +220,25 @@ class TrainingResult(db.Model):
         )
 
     def get_pretty_result(self):
-        try:
-            loaded_result = json.loads(self.result)
-        except ValueError:
-            # Could not decode JSON
-            loaded_result = None
-
-        if loaded_result:
-            result = {
-                'state': 'OK',
-                'value': loaded_result,
-            }
+        if self.photo_is_incorrect:
+            result = 'Photo marked as incorrect'
         else:
-            result = {
-                'state': 'KO',
-                'value': {},
-            }
+            try:
+                loaded_result = json.loads(self.result)
+            except ValueError:
+                # Could not decode JSON
+                loaded_result = None
+
+            if loaded_result:
+                result = {
+                    'state': 'OK',
+                    'value': loaded_result,
+                }
+            else:
+                result = {
+                    'state': 'KO',
+                    'value': {},
+                }
 
         return {
             'photo': {
@@ -248,12 +252,13 @@ class TrainingResult(db.Model):
         }
 
     @classmethod
-    def create(cls, photo, training_set, user, result):
+    def create(cls, photo, training_set, user, result, **kwargs):
         training_result = cls(
             photo=photo,
             training_set=training_set,
             user=user,
             result=result,
+            **kwargs
         )
 
         db.session.add(training_result)

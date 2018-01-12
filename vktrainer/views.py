@@ -157,7 +157,8 @@ def training_set_photo_post_result(training_set_pk):
 
     data = request.form
     photo_pk = data.get('photo')
-    result = data.get('training_result')
+    result = data.get('training_result') or '{}'
+    photo_is_incorrect = data.get('photo_is_incorrect') or False
 
     if not photo_pk:
         abort(404)
@@ -170,6 +171,7 @@ def training_set_photo_post_result(training_set_pk):
         training_set=training_set,
         user=current_user,
         result=result,
+        photo_is_incorrect=photo_is_incorrect,
     )
 
     return jsonify({})
