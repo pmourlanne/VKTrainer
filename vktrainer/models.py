@@ -197,7 +197,10 @@ class TrainingPattern(db.Model):
     @property
     def pattern(self):
         from .patterns import REF_TO_PATTERN_CLASS
-        return REF_TO_PATTERN_CLASS.get(self.pattern_ref)
+        try:
+            return REF_TO_PATTERN_CLASS[self.pattern_ref]
+        except KeyError:
+            raise KeyError('Unknown pattern: {}'.format(self.pattern_ref))
 
 
 class TrainingResult(db.Model):

@@ -12,7 +12,39 @@ class GenderPattern(SelectPattern):
         ('Male'),
         ('Female'),
         ('Unknown'),
-        ('Not a face'),
+    ]
+
+
+class AgePattern(SelectPattern):
+    reference = 'age_select'
+    choices = [
+        ('0-5'),
+        ('6-13'),
+        ('14-25'),
+        ('26-35'),
+        ('36-45'),
+        ('46-55'),
+        ('56-65'),
+        ('66-75'),
+        ('76-99'),
+    ]
+
+
+class GlassesPattern(SelectPattern):
+    reference = 'glasses'
+    choices = [
+        ('No glasses'),
+        ('Glasses'),
+        ('Sunglasses'),
+    ]
+
+
+class FacialHairPattern(SelectPattern):
+    reference = 'facial_hair'
+    choices = [
+        ('No facial hair'),
+        ('Beard'),
+        ('Mustache only'),
     ]
 
 
@@ -35,5 +67,8 @@ def register(klass):
 
 
 register(GenderPattern)
+register(AgePattern)
+register(GlassesPattern)
+register(FacialHairPattern)
 register(NumberInputPattern)
 register(PointPattern)

@@ -48,29 +48,16 @@ def import_photos(folder):
     return photos
 
 
-@manager.command
-def bootstrapdb():
-    """Bootstrap db with sample training set"""
-    from vktrainer import db
+def create_gender_training_set(db, photos):
     from vktrainer.models import TrainingSet, TrainingPattern
 
-    syncdb()
-    photos = import_photos('test_pictures')
-
-    # We create the training sets
     gender_age_set = TrainingSet(name='Gender & Age')
-    points_set = TrainingSet(name='Face detection')
-
-    db.session.add_all([gender_age_set, points_set])
+    db.session.add(gender_age_set)
     db.session.commit()
 
-    # We add the photos
     for photo in photos:
         gender_age_set.photos.append(photo)
-        points_set.photos.append(photo)
-    db.session.commit()
 
-    # We create the patterns
     gender = TrainingPattern(
         training_set=gender_age_set,
         name='Gender',
@@ -81,10 +68,25 @@ def bootstrapdb():
     age = TrainingPattern(
         training_set=gender_age_set,
         name='Age',
-        instruction='Enter the age of the person',
+        instruction='Enter the estimated age of the person',
         pattern_ref='number',
         position=2,
     )
+    db.session.add_all([gender, age])
+    db.session.commit()
+
+    return gender_age_set
+
+
+def create_points_training_set(db, photos):
+    from vktrainer.models import TrainingSet, TrainingPattern
+
+    points_set = TrainingSet(name='Face detection')
+    db.session.add(points_set)
+    db.session.commit()
+
+    for photo in photos:
+        points_set.photos.append(photo)
 
     left_eye = TrainingPattern(
         training_set=points_set,
@@ -107,9 +109,91 @@ def bootstrapdb():
         pattern_ref='point',
         position=3,
     )
-
-    db.session.add_all([gender, age, left_eye, right_eye, nose])
+    db.session.add_all([left_eye, right_eye, nose])
     db.session.commit()
+
+    return points_set
+
+
+def create_full_training_set(db, photos):
+    from vktrainer.models import TrainingSet, TrainingPattern
+
+    full_set = TrainingSet(name='Full face tagging')
+    db.session.add(full_set)
+    db.session.commit()
+
+    for photo in photos:
+        full_set.photos.append(photo)
+
+    gender = TrainingPattern(
+        training_set=full_set,
+        name='Gender',
+        instruction='Choose the gender that most fits the face',
+        pattern_ref='gender',
+        position=1,
+    )
+    age = TrainingPattern(
+        training_set=full_set,
+        name='Age',
+        instruction='Enter the estimated age of the person',
+        pattern_ref='age_select',
+        position=2,
+    )
+    glasses = TrainingPattern(
+        training_set=full_set,
+        name='Glasses',
+        instruction='Is the person wearing glasses or sunglasses?',
+        pattern_ref='glasses',
+        position=3,
+    )
+    facial_hair = TrainingPattern(
+        training_set=full_set,
+        name='Facial hair',
+        instruction='Does the person have facial hair?',
+        pattern_ref='facial_hair',
+        position=4,
+    )
+    left_eye = TrainingPattern(
+        training_set=full_set,
+        name='Left eye',
+        instruction='Click on the left eye of the face',
+        pattern_ref='point',
+        position=5,
+    )
+    right_eye = TrainingPattern(
+        training_set=full_set,
+        name='Right eye',
+        instruction='Click on the right eye of the face',
+        pattern_ref='point',
+        position=6,
+    )
+    mouth = TrainingPattern(
+        training_set=full_set,
+        name='Mouth',
+        instruction='Click on the center of the mouth',
+        pattern_ref='point',
+        position=7,
+    )
+    db.session.add_all([gender, age, glasses, facial_hair, left_eye, right_eye, mouth])
+    db.session.commit()
+
+    return full_set
+
+
+def create_training_sets(db, photos):
+    # create_gender_training_set(db, photos)
+    # create_points_training_set(db, photos)
+    create_full_training_set(db, photos)
+
+
+@manager.command
+def bootstrapdb():
+    """Bootstrap db with sample training set"""
+    from vktrainer import db
+
+    syncdb()
+    photos = import_photos('test_pictures')
+    create_training_sets(db, photos)
 
     print('Successfully bootstrapped db')
 

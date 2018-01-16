@@ -9,7 +9,7 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DB_PATH
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'migrations')
 
 # Possible values : 'linear' and 'semi-random'
-SHOW_PICTURES_ORDERING = 'linear'
+SHOW_PICTURES_ORDERING = 'semi-random'
 
 SECRET_KEY = 'ThisIsAPlaceholderReplaceMe'
 
