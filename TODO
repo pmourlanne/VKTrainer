@@ -1,5 +1,3 @@
-Update Ansible playbook to use py3
-
 Better mass ingest photo (md5 verification?)
 More Server side tests
 Client side tests

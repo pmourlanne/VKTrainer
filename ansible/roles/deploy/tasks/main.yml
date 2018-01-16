@@ -18,7 +18,10 @@
   apt: pkg=python-virtualenv state=present update_cache=yes
 
 - name: Install requirements in venv
-  pip: requirements=/srv/vktrainer/requirements.txt virtualenv=/srv/vktrainer/venv
+  pip:
+    requirements=/srv/vktrainer/requirements.txt
+    virtualenv=/srv/vktrainer/venv
+    virtualenv_python=python3.5
   become_user: vktrainer
 
 # Supervisor
